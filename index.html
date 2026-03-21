@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SHUFFLER LOG - Multi-System Sync</title>
+    <style>
+        /* --- EXECUTIVE MINIMALIST THEME --- */
+        :root {
+            --bg-body-grey: #F9FAFB; 
+            --bg-form-grey: #FFFFFF; 
+            --input-grey: #FFFFFF; 
+            --primary-slate: #0F172A; 
+            --accent-charcoal: #374151; 
+            --text-dark: #111827; 
+            --text-muted: #6B7280; 
+            --border-grey: #E5E7EB; 
+            --border-focus: #9CA3AF; 
+            --success: #15803D; 
+            --warning: #B45309; 
+            --danger: #B91C1C; 
+            --action-blue: #2563EB; 
+            --alert-brown-professional: #9A3412; 
+            --alert-teal-professional: #0F766E; 
+        }
+
+        body { font-family: 'Inter', '-apple-system', 'Segoe UI', Arial, sans-serif; padding: 20px; background: var(--bg-body-grey); text-transform: uppercase; color: var(--text-dark); font-weight: 500; letter-spacing: 0.2px; }
+        .container { max-width: 1400px; margin: auto; background: var(--bg-form-grey); padding-bottom: 20px; border-radius: 8px; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1); position: relative; overflow: hidden; border: 1px solid var(--border-grey); }
+        .header { background-color: var(--primary-slate); width: 100%; padding: 22px 0; text-align: center; margin-bottom: 25px; color: white; border-bottom: 1px solid var(--border-grey); }
+        .header h3 { margin: 0; font-size: 1.4rem; letter-spacing: 2px; font-weight: 700; color: #FFFFFF; }
+        .total-badge-container { position: absolute; top: 22px; right: 25px; }
+        .top-issues-container { position: absolute; top: 18px; left: 25px; text-align: left; }
+        .badge { background: rgba(255,255,255,0.1); color: #FFFFFF; padding: 6px 12px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; border: 1px solid rgba(255,255,255,0.2); }
+        .badge-most { background: #F3F4F6; color: var(--text-dark); border: 1px solid var(--border-grey); line-height: 1.4; white-space: pre-wrap; font-weight: 600; }
+        .form-content { padding: 0 25px; }
+        .form-section { background: var(--bg-form-grey); padding: 24px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--border-grey); box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
+        .input-row { display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
+        .input-group { flex: 1; min-width: 120px; }
+        label { font-weight: 700; display: block; margin-bottom: 6px; font-size: 0.75rem; color: #000000; letter-spacing: 0.5px; } 
+        input, select { width: 100%; padding: 10px 12px; border: 1px solid var(--border-grey); border-radius: 6px; box-sizing: border-box; font-size: 0.85rem; text-transform: uppercase; background: var(--input-grey); color: var(--text-dark); font-weight: 600; transition: all 0.2s ease; box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.01); }
+        input:focus, select:focus { outline: none; border-color: var(--border-focus); background: #fff; box-shadow: 0 0 0 1px var(--border-focus); }
+        .action-bar { display: flex; gap: 12px; margin-top: 25px; padding: 16px; background: #F9FAFB; border-radius: 6px; border: 1px solid var(--border-grey); flex-wrap: wrap; }
+        .btn { padding: 10px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; color: white; font-size: 0.8rem; flex: 1; text-transform: uppercase; min-width: 120px; transition: opacity 0.2s; letter-spacing: 0.5px; }
+        .btn:hover:not(:disabled) { opacity: 0.9; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-save { background: var(--success); }
+        .btn-update { background: var(--warning); }
+        .btn-delete { background: var(--danger); }
+        .btn-clear { background: #6B7280; } 
+        .btn-excel { background: var(--action-blue); } 
+        .btn-reset { background: white; color: var(--text-dark); border: 1px solid var(--border-grey); } 
+        .search-container { margin: 15px 0; display: flex; align-items: center; background: var(--bg-form-grey); padding: 12px; border-radius: 6px; border: 1px solid var(--border-grey); flex-wrap: wrap; gap: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
+        .search-wrapper { position: relative; flex: 2; }
+        .dropdown-list { display: none; position: absolute; z-index: 100; background: white; width: 100%; max-height: 180px; overflow-y: auto; border: 1px solid var(--border-grey); border-radius: 6px; top: 100%; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
+        .table-wrapper { max-height: 450px; overflow-y: auto; border: 1px solid var(--border-grey); border-radius: 6px; }
+        table { width: 100%; border-collapse: collapse; cursor: pointer; background: white; }
+        th, td { border-bottom: 1px solid var(--border-grey); padding: 14px 16px; text-align: center; font-size: 0.8rem; color: var(--text-dark); }
+        td { font-weight: 500; }
+        th { background: #F3F4F6; color: var(--accent-charcoal); position: sticky; top: 0; z-index: 10; font-weight: 700; letter-spacing: 0.5px; border-bottom: 2px solid var(--border-grey); }
+        tr:nth-child(even) { background: #FFFFFF; }
+        tr:nth-child(odd) { background: #F9FAFB; }
+        tr:hover { background: #F3F4F6; }
+        .selected-row { background: #E5E7EB !important; outline: 1px solid var(--accent-charcoal); }
+        .card-damage-row td { color: var(--danger) !important; font-weight: 600; }
+        .dept-row td { color: var(--alert-brown-professional) !important; font-weight: 600; } 
+        .swap-row td { color: var(--alert-teal-professional) !important; font-weight: 600; } 
+        .expired-row { color: #9CA3AF !important; font-style: italic; font-weight: 400; }
+        #syncStatus { font-size: 0.65rem; color: var(--text-muted); position: absolute; bottom: 8px; right: 12px; font-weight: 600; }
+    </style>
+</head>
+<body onclick="checkClickOutside(event)" onload="initApp()">
+
+<div class="container" id="mainContainer">
+    <div class="top-issues-container"><div class="badge badge-most" id="topAssets">FETCHING DATA...</div></div>
+    <div class="total-badge-container"><div class="badge" id="totalCount">TOTAL RECORDS: 0</div></div>
+
+    <div class="header"><h3>SHUFFLER LOG SYSTEM</h3></div>
+
+    <div class="form-content">
+        <div class="form-section">
+            <div class="input-row">
+                <div class="input-group"><label>LOG DATE</label><input type="date" id="date"></div>
+                <div class="input-group"><label>LOG TIME</label><input type="time" id="time"></div>
+                <div class="input-group"><label>REPORTED BY</label><input type="text" id="informedBy"></div>
+                <div class="input-group"><label>TABLE NO</label><input type="text" id="tableNo" oninput="enforcePrefix('tableNo', 'FT ')"></div>
+                <div class="input-group">
+                    <label>SHUFFLER TYPE</label>
+                    <select id="shuffler" onchange="handleShufflerChange()">
+                        <option value="">SELECT MODEL</option>
+                        <option value="DECKMATE">DECKMATE</option>
+                        <option value="MFS">MFS</option>
+                        <option value="SK-2">SK-2</option>
+                        <option value="IDEAL">IDEAL</option>
+                        <option value="APLUS">APLUS</option>
+                        <option value="MD">MD</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="input-row">
+                <div class="search-wrapper">
+                    <label>ERROR MESSAGE</label>
+                    <input type="text" id="error" autocomplete="off" onfocus="showList('errorSelect')" onkeyup="filterList('error', 'errorSelect')">
+                    <select id="errorSelect" class="dropdown-list" size="5" onchange="selectValue('error', 'errorSelect')"></select>
+                </div>
+                <div class="input-group"><label>SURVEILLANCE</label><input type="text" id="surveillance"></div>
+                <div class="search-wrapper">
+                    <label>TECHNICIAN</label>
+                    <input type="text" id="tech" autocomplete="off" onfocus="showList('techSelect')" onkeyup="filterList('tech', 'techSelect')">
+                    <select id="techSelect" class="dropdown-list" size="5" onchange="selectValue('tech', 'techSelect')"></select>
+                </div>
+                <div class="input-group"><label>ASSET NUMBER</label><input type="text" id="assetNo" oninput="enforceAssetPrefix()"></div>
+                <div class="input-group" style="flex:2;">
+                    <label id="remarksLabel">REMARKS (MANDATORY FOR SWAPS/DEPT)</label>
+                    <input type="text" id="remarks" placeholder="ENTER DETAILS HERE...">
+                </div>
+            </div>
+
+            <div class="action-bar">
+                <button class="btn btn-save" id="btnSave" onclick="saveData()">SAVE NEW RECORD</button>
+                <button class="btn btn-update" id="btnUpdate" onclick="updateData()" disabled>UPDATE SELECTED</button>
+                <button class="btn btn-delete" id="btnDelete" onclick="deleteData()" disabled>DELETE</button>
+                <button class="btn btn-clear" onclick="deselect()">CLEAR FORM</button>
+                <button class="btn btn-excel" onclick="exportExcel()">EXPORT EXCEL</button>
+                <button class="btn btn-reset" onclick="hardReset()">SYSTEM RESET</button>
+                <button class="btn" style="background: var(--primary-slate);" onclick="syncFromServer(true)">SYNC NOW</button>
+            </div>
+        </div>
+
+        <div class="search-container">
+            <div style="display: flex; align-items: center; background: #F3F4F6; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border-grey);">
+                <span style="font-weight:700; font-size: 0.8rem; color: #000000; margin-right: 10px;">VIEW MONTH:</span>
+                <select id="monthSelector" onchange="changeMonth()" style="width: auto; padding: 4px; border: none; background: transparent; cursor: pointer; color: var(--text-dark); font-weight: 700; outline: none;"></select>
+            </div>
+            <input type="text" id="tableSearch" placeholder="SEARCH TABLE, MODEL, TECH, ASSET..." onkeyup="searchTable()" style="flex:1; margin-left:15px;">
+        </div>
+
+        <div class="table-wrapper">
+            <table id="dataTable">
+                <thead><tr><th>SR.</th><th>DATE</th><th>TIME</th><th>INFORMED</th><th>TABLE</th><th>MODEL</th><th>ERROR</th><th>SURV.</th><th>TECH</th><th>ASSET</th><th>REMARKS</th></tr></thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+    <div id="syncStatus">CONNECTED TO MASTER CLOUD</div>
+</div>
+
+<script>
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx7Rdu-pi5oUD25PNlHr5O0XfIx6bM8YBur6VOPC4BlXEPOIHQwun9m5OUmsApO-ixg/exec"; 
+    
+    const fields = ["date", "time", "informedBy", "tableNo", "shuffler", "error", "surveillance", "tech", "assetNo", "remarks"];
+    const LIMIT_MINUTES = 10;
+    const SPECIAL_ERRORS = ["SHUFFLER BROUGHT TO DEPARTMENT", "SHUFFLER SWAPPED WITH OTHER TABLE"];
+
+    const errorData = {
+        "DECKMATE": ["REMOVE FEEDER CARDS", "PERFORMING AUTO SETUP", "CARD JAM ERROR", "MISSING 1 CARD", "TOO MANY CARDS", "CARD DAMAGE", ...SPECIAL_ERRORS],
+        "MFS": ["REMOVE CARD FROM SHELF", "OPEN CLOSE COVER", "CLOSE COVER", "WHEEL NOT LOCKED", "CARD DAMAGE", ...SPECIAL_ERRORS],
+        "SK-2": ["CARDS BLOCKED", "DOOR SENSOR COVERED", "ESD SHOCK ERROR", "TOO FEW CARDS ERROR", "CARD DAMAGE", ...SPECIAL_ERRORS],
+        "IDEAL": ["CARD JAM", "SENSOR ERROR", "ROLLER CLEANING REQUIRED", "CARD DAMAGE", ...SPECIAL_ERRORS],
+        "APLUS": ["GRIPPER ERROR", "ELEVATOR JAM", "DECK EMPTY", "CARD DAMAGE", ...SPECIAL_ERRORS],
+        "MD": ["SHUFFLE TIMEOUT", "INTERNAL ERROR", "CALIBRATION ERROR", "CARD DAMAGE", ...SPECIAL_ERRORS]
+    };
+    
+    const techNames = ["ARJUN KUMAR", "ARPAN KHATI", "ASHVIK PADLOSKAR", "JITIN KUMAR", "JOEL FURTADO", "JULIUS MIRANDA", "MOHEET GHADI", "MORRISON ALMEIDA", "OMKAR KAULGEKAR", "ROHAN DALAL", "ROHAN PATIL", "SARVANG NAIK", "ASIF HAIDER", "SULEMAN MAKANDAR", "SUSOVON DEBHNATH", "VIVEK MURGAOKAR", "XAVIER FERNANDES", "YOGESH CHAWAN", "SARTHAK KANASKAR", "PRABHU N", "RINKU GIRI", "SAJARO SALGAOKAR"];
+    
+    let selectedRow = null;
+    let currentViewMonth = "";
+    let localVersion = "0";
+
+    async function initApp() { 
+        loadFromStorage(); 
+        initTechList(); 
+        setCurrentDateTime(); 
+        resetPrefixes(); 
+        await syncFromServer(true); 
+        setInterval(() => syncFromServer(false), 2000); 
+    }
+
+    function changeMonth() {
+        currentViewMonth = document.getElementById('monthSelector').value;
+        syncFromServer(true); 
+    }
+
+    async function syncFromServer(force = false) {
+        if(!SCRIPT_URL.startsWith("https")) return;
+        
+        let fetchUrl = SCRIPT_URL + "?version=" + localVersion;
+        if (currentViewMonth !== "") {
+            fetchUrl += "&month=" + encodeURIComponent(currentViewMonth);
+        }
+        if (force) {
+            fetchUrl += "&force=true";
+            document.getElementById('syncStatus').innerText = "FORCING DATA SYNC...";
+        } else {
+            document.getElementById('syncStatus').innerText = "CHECKING FOR UPDATES...";
+        }
+
+        try {
+            const response = await fetch(fetchUrl);
+            const data = await response.json(); 
+            
+            if (data.changed === false) {
+                document.getElementById('syncStatus').innerText = "NO NEW UPDATES: " + new Date().toLocaleTimeString();
+                return;
+            }
+            
+            if (data && data.records) {
+                localVersion = data.version; 
+                updateMonthDropdown(data.months, data.currentView);
+                renderTable(data.records);
+                localStorage.setItem('shufflerLogsAssetV2', JSON.stringify(data.records));
+                document.getElementById('syncStatus').innerText = "DATA UPDATED: " + new Date().toLocaleTimeString();
+            }
+        } catch (e) {
+            document.getElementById('syncStatus').innerText = "OFFLINE MODE - RETRYING SOON...";
+        }
+    }
+
+    function updateMonthDropdown(months, currentView) {
+        const sel = document.getElementById('monthSelector');
+        if (sel.options.length !== months.length) {
+            sel.innerHTML = "";
+            months.forEach(m => {
+                let opt = document.createElement('option');
+                opt.value = m;
+                opt.text = m;
+                if (m === currentView) opt.selected = true;
+                sel.appendChild(opt);
+            });
+        }
+    }
+
+    function renderTable(dataList) {
+        const tbody = document.querySelector('#dataTable tbody');
+        tbody.innerHTML = "";
+        dataList.reverse().forEach((item, index) => {
+            const row = tbody.insertRow();
+            row.setAttribute("data-id", item.id);
+            row.insertCell(0).innerText = index + 1;
+            fields.forEach((f, i) => {
+                row.insertCell(i + 1).innerText = item[f] || "";
+            });
+            
+            if (item.error === "CARD DAMAGE") {
+                row.classList.add('card-damage-row');
+            } else if (item.error === "SHUFFLER BROUGHT TO DEPARTMENT") {
+                row.classList.add('dept-row');
+            } else if (item.error === "SHUFFLER SWAPPED WITH OTHER TABLE") {
+                row.classList.add('swap-row');
+            }
+            
+            if (checkExpiry(item.id)) row.classList.add('expired-row');
+        });
+        refreshTable();
+    }
+
+    function saveData() {
+        const errorVal = document.getElementById('error').value.toUpperCase();
+        const remarksVal = document.getElementById('remarks').value.trim();
+
+        if (document.getElementById('tableNo').value === "FT " || document.getElementById('assetNo').value === getAssetPrefix()) { 
+            alert("INCOMPLETE DATA: PLEASE ENTER TABLE AND ASSET NO."); return; 
+        }
+
+        if (SPECIAL_ERRORS.includes(errorVal) && remarksVal === "") {
+            document.getElementById('remarks').style.borderColor = "var(--danger)";
+            document.getElementById('remarks').focus();
+            alert("REMARKS ARE COMPULSORY FOR: " + errorVal); return;
+        }
+
+        for (let id of fields) { 
+            if (id !== 'remarks' && document.getElementById(id).value.trim() === "") { 
+                alert("ALL FIELDS REQUIRED"); return; 
+            } 
+        }
+        
+        const rowID = "ID-" + Date.now();
+        let dataObj = { id: rowID, action: "SAVE" };
+        fields.forEach(id => dataObj[id] = document.getElementById(id).value.toUpperCase());
+
+        syncToSheet(dataObj);
+        deselect();
+    }
+
+    function updateData() {
+        if (!selectedRow) return;
+        const rowID = selectedRow.getAttribute("data-id");
+        let dataObj = { id: rowID, action: "UPDATE" };
+        fields.forEach(id => dataObj[id] = document.getElementById(id).value.toUpperCase());
+        syncToSheet(dataObj);
+        deselect();
+    }
+
+    function deleteData() {
+        if (!selectedRow) return;
+        if (confirm("ARE YOU SURE YOU WANT TO DELETE THIS LOG? THIS WILL REMOVE IT FROM ALL COMPUTERS.")) {
+            const rowID = selectedRow.getAttribute("data-id");
+            let dataObj = { id: rowID, action: "DELETE" };
+            fields.forEach(id => dataObj[id] = document.getElementById(id).value.toUpperCase());
+
+            let stored = JSON.parse(localStorage.getItem('shufflerLogsAssetV2') || "[]");
+            stored = stored.filter(item => item.id !== rowID);
+            localStorage.setItem('shufflerLogsAssetV2', JSON.stringify(stored));
+            renderTable(stored);
+
+            syncToSheet(dataObj);
+            deselect();
+        }
+    }
+
+    async function syncToSheet(data) {
+        if(!SCRIPT_URL.startsWith("https")) return;
+        document.getElementById('syncStatus').innerText = "SAVING TO MASTER CLOUD...";
+        fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(data) })
+            .then(() => {
+                setTimeout(() => syncFromServer(true), 1000); 
+            });
+    }
+
+    function checkExpiry(rowID) { return (Date.now() - parseInt(rowID.split('-')[1])) / (1000 * 60) > LIMIT_MINUTES; }
+    
+    function loadFromStorage() {
+        const stored = localStorage.getItem('shufflerLogsAssetV2');
+        if (stored) renderTable(JSON.parse(stored));
+    }
+
+    function refreshTable() {
+        const rows = document.querySelectorAll('#dataTable tbody tr');
+        const counts = {};
+        rows.forEach((r) => {
+            const asset = r.cells[9].innerText.trim();
+            if(asset && !asset.endsWith("- ")) counts[asset] = (counts[asset] || 0) + 1;
+        });
+        document.getElementById('totalCount').innerText = "TOTAL RECORDS: " + rows.length;
+        const top = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 3);
+        let txt = top.length ? "" : "NO DATA";
+        top.forEach(([a, c], i) => txt += `${i + 1}. ${a} (${c})\n`);
+        document.getElementById('topAssets').innerText = txt.trim();
+    }
+
+    function handleShufflerChange() { loadErrorList(); enforceAssetPrefix(); }
+    function getAssetPrefix() {
+        const s = document.getElementById('shuffler').value;
+        const p = {"DECKMATE":"SHFL-DM- ", "MFS":"SHFL-MFS- ", "SK-2":"SHFL-SK2- ", "IDEAL":"SHFL-ID- ", "APLUS":"SHFL-AP- ", "MD":"SHFL-MD- "};
+        return p[s] || "SHFL- ";
+    }
+    function enforcePrefix(id, prefix) { 
+        const input = document.getElementById(id); 
+        if (!input.value.startsWith(prefix)) input.value = prefix; 
+    }
+    function enforceAssetPrefix() { enforcePrefix('assetNo', getAssetPrefix()); }
+    function resetPrefixes() { 
+        document.getElementById('tableNo').value = "FT "; 
+        document.getElementById('assetNo').value = getAssetPrefix(); 
+    }
+    function setCurrentDateTime() {
+        const n = new Date();
+        document.getElementById('date').value = n.toISOString().split('T')[0];
+        document.getElementById('time').value = n.toTimeString().slice(0,5);
+    }
+    function initTechList() {
+        const sel = document.getElementById('techSelect');
+        techNames.sort().forEach(name => { 
+            let opt = document.createElement('option'); opt.value = opt.text = name; sel.appendChild(opt); 
+        });
+    }
+    function loadErrorList() {
+        const sel = document.getElementById('errorSelect'); 
+        const shuff = document.getElementById('shuffler').value;
+        sel.innerHTML = ""; 
+        if(errorData[shuff]) { 
+            errorData[shuff].forEach(err => { 
+                let opt = document.createElement('option'); opt.value = opt.text = err; sel.appendChild(opt); 
+            }); 
+            sel.style.display = "block"; 
+        }
+    }
+    function showList(id) { document.getElementById(id).style.display = "block"; }
+    function selectValue(inputId, selectId) { 
+        document.getElementById(inputId).value = document.getElementById(selectId).value; 
+        document.getElementById(selectId).style.display = "none"; 
+        if(inputId === 'error') {
+            const isSpecial = SPECIAL_ERRORS.includes(document.getElementById(inputId).value);
+            document.getElementById('remarks').style.background = isSpecial ? "#FEF2F2" : "var(--input-grey)";
+        }
+    }
+    function filterList(inputId, selectId) {
+        const f = document.getElementById(inputId).value.toUpperCase();
+        const opts = document.getElementById(selectId).options;
+        let v = 0;
+        for (let o of opts) { 
+            let m = o.text.includes(f); o.style.display = m ? "" : "none"; if(m) v++; 
+        }
+        document.getElementById(selectId).style.display = v > 0 ? "block" : "none";
+    }
+    function searchTable() {
+        const input = document.getElementById("tableSearch").value.toUpperCase();
+        const rows = document.querySelector("#dataTable tbody").rows;
+        for (let row of rows) row.style.display = row.innerText.toUpperCase().includes(input) ? "" : "none";
+    }
+    function deselect() { 
+        if(selectedRow) selectedRow.classList.remove('selected-row'); 
+        selectedRow = null; 
+        document.getElementById('btnSave').disabled = false; 
+        document.getElementById('btnUpdate').disabled = true;
+        document.getElementById('btnDelete').disabled = true; 
+        clearInputs(); setCurrentDateTime(); resetPrefixes(); 
+        document.getElementById('remarks').style.borderColor = "var(--border-grey)";
+        document.getElementById('remarks').style.background = "var(--input-grey)";
+    }
+    function clearInputs() { ["informedBy", "tableNo", "error", "assetNo", "tech", "shuffler", "surveillance", "remarks"].forEach(id => document.getElementById(id).value = ""); }
+    function exportExcel() {
+        let csv = []; document.querySelectorAll("#dataTable tr").forEach(tr => { 
+            if(tr.style.display !== "none") {
+                let row = []; tr.querySelectorAll("th, td").forEach(td => row.push('"' + td.innerText + '"')); csv.push(row.join(",")); 
+            }
+        });
+        const link = document.createElement("a"); link.href = "data:text/csv;charset=utf-8," + encodeURI(csv.join("\n")); 
+        link.download = "SHUFFLER_LOG_" + document.getElementById('monthSelector').value + ".csv"; 
+        link.click();
+    }
+    
+    // --- SECURE SYSTEM RESET FUNCTION ---
+    function hardReset() {
+        const pass = window.prompt("ENTER MASTER PASSCODE TO WIPE SYSTEM DATA:");
+        if (!pass) return;
+
+        document.getElementById('syncStatus').innerText = "VERIFYING PASSCODE...";
+        const dataObj = { action: "RESET", passcode: pass };
+        
+        fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(dataObj) })
+            .then(() => {
+                setTimeout(() => {
+                    localStorage.removeItem('shufflerLogsAssetV2');
+                    location.reload();
+                }, 1500);
+            });
+    }
+
+    document.querySelector('#dataTable tbody').addEventListener('click', e => {
+        const row = e.target.closest('tr'); 
+        if(!row) return; 
+        if(selectedRow) selectedRow.classList.remove('selected-row');
+        selectedRow = row; selectedRow.classList.add('selected-row'); 
+        document.getElementById('btnSave').disabled = true;
+        document.getElementById('btnUpdate').disabled = false;
+        document.getElementById('btnDelete').disabled = false; 
+        fields.forEach((id, i) => document.getElementById(id).value = row.cells[i+1].innerText);
+        e.stopPropagation();
+    });
+
+    function checkClickOutside(e) {
+        if (!e.target.closest('#dataTable') && !e.target.closest('.form-section')) deselect(); 
+        if (!e.target.closest('.search-wrapper')) document.querySelectorAll('.dropdown-list').forEach(el => el.style.display = "none"); 
+    }
+</script>
+</body>
+</html>
