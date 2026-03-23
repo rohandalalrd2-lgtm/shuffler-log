@@ -4,77 +4,78 @@
     <meta charset="UTF-8">
     <title>SHUFFLER LOG - Multi-System Sync</title>
     <style>
-        /* --- EXECUTIVE MINIMALIST THEME --- */
+        /* --- LIGHT BLUE THEME (PURE BLACK FONT) --- */
         :root {
-            --bg-body-grey: #F9FAFB; 
+            --bg-body-grey: #F0F9FF; 
             --bg-form-grey: #FFFFFF; 
             --input-grey: #FFFFFF; 
-            --primary-slate: #0F172A; 
-            --accent-charcoal: #374151; 
-            --text-dark: #111827; 
-            --text-muted: #6B7280; 
-            --border-grey: #E5E7EB; 
-            --border-focus: #9CA3AF; 
-            --success: #15803D; 
-            --warning: #B45309; 
-            --danger: #B91C1C; 
-            --action-blue: #2563EB; 
-            --alert-brown-professional: #9A3412; 
-            --alert-teal-professional: #0F766E; 
+            --primary-slate: #7DD3FC; 
+            --accent-charcoal: #000000; 
+            --text-dark: #000000; 
+            --text-muted: #000000; 
+            --border-grey: #BAE6FD; 
+            --border-focus: #38BDF8; 
+            
+            --success: #4ADE80; 
+            --warning: #FACC15; 
+            --danger: #F87171; 
+            --action-blue: #38BDF8; 
+            
+            --alert-brown-professional: #000000; 
+            --alert-teal-professional: #000000; 
         }
 
-        body { font-family: 'Inter', '-apple-system', 'Segoe UI', Arial, sans-serif; padding: 20px; background: var(--bg-body-grey); text-transform: uppercase; color: var(--text-dark); font-weight: 500; letter-spacing: 0.2px; }
-        .container { max-width: 1400px; margin: auto; background: var(--bg-form-grey); padding-bottom: 20px; border-radius: 8px; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1); position: relative; overflow: hidden; border: 1px solid var(--border-grey); }
-        .header { background-color: var(--primary-slate); width: 100%; padding: 22px 0; text-align: center; margin-bottom: 25px; color: white; border-bottom: 1px solid var(--border-grey); }
-        .header h3 { margin: 0; font-size: 1.4rem; letter-spacing: 2px; font-weight: 700; color: #FFFFFF; }
-        .total-badge-container { position: absolute; top: 22px; right: 25px; }
-        .top-issues-container { position: absolute; top: 18px; left: 25px; text-align: left; }
-        .badge { background: rgba(255,255,255,0.1); color: #FFFFFF; padding: 6px 12px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; border: 1px solid rgba(255,255,255,0.2); }
-        .badge-most { background: #F3F4F6; color: var(--text-dark); border: 1px solid var(--border-grey); line-height: 1.4; white-space: pre-wrap; font-weight: 600; }
+        body { font-family: 'Inter', '-apple-system', 'Segoe UI', Arial, sans-serif; padding: 20px; background: var(--bg-body-grey); text-transform: uppercase; color: #000000; font-weight: 600; letter-spacing: 0.2px; }
+        .container { max-width: 1400px; margin: auto; background: var(--bg-form-grey); padding-bottom: 20px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(2, 132, 199, 0.1), 0 2px 4px -1px rgba(2, 132, 199, 0.06); position: relative; overflow: hidden; border: 1px solid var(--border-grey); }
+        .header { background-color: var(--primary-slate); width: 100%; padding: 22px 0; text-align: center; margin-bottom: 25px; border-bottom: 2px solid #0284C7; }
+        .header h3 { margin: 0; font-size: 1.82rem; letter-spacing: 2px; font-weight: 900; color: #000000; }
+        
+        .top-issues-container { position: absolute; top: 22px; left: 25px; text-align: left; font-weight: 800; font-size: 0.9rem; color: #000000; white-space: nowrap; }
+        .total-badge-container { position: absolute; top: 22px; right: 25px; text-align: right; font-weight: 800; font-size: 0.9rem; color: #000000; white-space: nowrap; }
+        
         .form-content { padding: 0 25px; }
-        .form-section { background: var(--bg-form-grey); padding: 24px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--border-grey); box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
+        .form-section { background: var(--bg-form-grey); padding: 24px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--border-grey); box-shadow: 0 1px 2px rgba(2,132,199,0.05); }
         .input-row { display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
         .input-group { flex: 1; min-width: 120px; }
-        label { font-weight: 700; display: block; margin-bottom: 6px; font-size: 0.75rem; color: #000000; letter-spacing: 0.5px; } 
-        input, select { width: 100%; padding: 10px 12px; border: 1px solid var(--border-grey); border-radius: 6px; box-sizing: border-box; font-size: 0.85rem; text-transform: uppercase; background: var(--input-grey); color: var(--text-dark); font-weight: 600; transition: all 0.2s ease; box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.01); }
-        input:focus, select:focus { outline: none; border-color: var(--border-focus); background: #fff; box-shadow: 0 0 0 1px var(--border-focus); }
-        .action-bar { display: flex; gap: 12px; margin-top: 25px; padding: 16px; background: #F9FAFB; border-radius: 6px; border: 1px solid var(--border-grey); flex-wrap: wrap; }
-        .btn { padding: 10px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; color: white; font-size: 0.8rem; flex: 1; text-transform: uppercase; min-width: 120px; transition: opacity 0.2s; letter-spacing: 0.5px; }
-        .btn:hover:not(:disabled) { opacity: 0.9; }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        label { font-weight: 800; display: block; margin-bottom: 6px; font-size: 0.75rem; color: #000000; letter-spacing: 0.5px; } 
+        input, select { width: 100%; padding: 10px 12px; border: 1px solid var(--border-grey); border-radius: 6px; box-sizing: border-box; font-size: 0.85rem; text-transform: uppercase; background: var(--input-grey); color: #000000; font-weight: 700; transition: all 0.2s ease; box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02); }
+        input:focus, select:focus { outline: none; border-color: var(--border-focus); background: #fff; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2); }
+        .action-bar { display: flex; gap: 12px; margin-top: 25px; padding: 16px; background: #F0F9FF; border-radius: 6px; border: 1px solid var(--border-grey); flex-wrap: wrap; }
+        .btn { padding: 10px 16px; border: 1px solid #000000; border-radius: 6px; cursor: pointer; font-weight: 800; color: #000000; font-size: 0.8rem; flex: 1; text-transform: uppercase; min-width: 120px; transition: opacity 0.2s; letter-spacing: 0.5px; }
+        .btn:hover:not(:disabled) { opacity: 0.8; }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; border: 1px solid var(--border-grey); }
         .btn-save { background: var(--success); }
         .btn-update { background: var(--warning); }
         .btn-delete { background: var(--danger); }
-        .btn-clear { background: #6B7280; } 
+        .btn-clear { background: #E2E8F0; } 
         .btn-excel { background: var(--action-blue); } 
-        .btn-reset { background: white; color: var(--text-dark); border: 1px solid var(--border-grey); } 
-        .search-container { margin: 15px 0; display: flex; align-items: center; background: var(--bg-form-grey); padding: 12px; border-radius: 6px; border: 1px solid var(--border-grey); flex-wrap: wrap; gap: 10px; box-shadow: 0 1px 2px rgba(0,0,0,0.02); }
+        .btn-reset { background: white; color: #000000; } 
+        .search-container { margin: 15px 0; display: flex; align-items: center; background: var(--bg-form-grey); padding: 12px; border-radius: 6px; border: 1px solid var(--border-grey); flex-wrap: wrap; gap: 10px; box-shadow: 0 1px 2px rgba(2,132,199,0.05); }
         .search-wrapper { position: relative; flex: 2; }
-        .dropdown-list { display: none; position: absolute; z-index: 100; background: white; width: 100%; max-height: 180px; overflow-y: auto; border: 1px solid var(--border-grey); border-radius: 6px; top: 100%; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-        .dropdown-list option { padding: 8px 12px; cursor: pointer; }
-        .dropdown-list option:hover { background-color: var(--border-grey); }
+        .dropdown-list { display: none; position: absolute; z-index: 100; background: white; width: 100%; max-height: 180px; overflow-y: auto; border: 2px solid #000000; border-radius: 6px; top: 100%; box-shadow: 0 4px 6px -1px rgba(2,132,199,0.1); }
+        .dropdown-list option { padding: 8px 12px; cursor: pointer; color: #000000; font-weight: 700; }
+        .dropdown-list option:hover { background-color: #E0F2FE; color: #000000; }
         .table-wrapper { max-height: 450px; overflow-y: auto; border: 1px solid var(--border-grey); border-radius: 6px; }
         table { width: 100%; border-collapse: collapse; cursor: pointer; background: white; }
-        th, td { border-bottom: 1px solid var(--border-grey); padding: 14px 16px; text-align: center; font-size: 0.8rem; color: var(--text-dark); }
-        td { font-weight: 500; }
-        th { background: #F3F4F6; color: var(--accent-charcoal); position: sticky; top: 0; z-index: 10; font-weight: 700; letter-spacing: 0.5px; border-bottom: 2px solid var(--border-grey); }
+        th, td { border-bottom: 1px solid var(--border-grey); padding: 14px 16px; text-align: center; font-size: 0.8rem; color: #000000; }
+        td { font-weight: 600; }
+        th { background: #E0F2FE; color: #000000; position: sticky; top: 0; z-index: 10; font-weight: 800; letter-spacing: 0.5px; border-bottom: 2px solid #000000; }
         tr:nth-child(even) { background: #FFFFFF; }
-        tr:nth-child(odd) { background: #F9FAFB; }
-        tr:hover { background: #F3F4F6; }
-        .selected-row { background: #E5E7EB !important; outline: 1px solid var(--accent-charcoal); }
-        .card-damage-row td { color: var(--danger) !important; font-weight: 600; }
-        .dept-row td { color: var(--alert-brown-professional) !important; font-weight: 600; } 
-        .swap-row td { color: var(--alert-teal-professional) !important; font-weight: 600; } 
-        .expired-row { color: #9CA3AF !important; font-style: italic; font-weight: 400; }
-        #syncStatus { font-size: 0.65rem; color: var(--text-muted); position: absolute; bottom: 8px; right: 12px; font-weight: 600; }
+        tr:nth-child(odd) { background: #F8FAFC; }
+        tr:hover { background: #BAE6FD; }
+        .selected-row { background: #7DD3FC !important; outline: 2px solid #000000; }
+        .card-damage-row td { color: #000000 !important; font-weight: 800; background-color: #FEE2E2; }
+        .dept-row td { color: #000000 !important; font-weight: 800; background-color: #FFEDD5; } 
+        .swap-row td { color: #000000 !important; font-weight: 800; background-color: #CCFBF1; } 
+        .expired-row { color: #000000 !important; font-style: italic; font-weight: 500; opacity: 0.6; }
+        #syncStatus { font-size: 0.65rem; color: #000000; position: absolute; bottom: 8px; right: 12px; font-weight: 800; }
     </style>
 </head>
 <body onclick="checkClickOutside(event)" onload="initApp()">
 
 <div class="container" id="mainContainer">
-    <div class="top-issues-container"><div class="badge badge-most" id="topAssets">FETCHING DATA...</div></div>
-    <div class="total-badge-container"><div class="badge" id="totalCount">TOTAL RECORDS: 0</div></div>
-
+    <div class="top-issues-container" id="topAssets">FETCHING DATA...</div>
+    <div class="total-badge-container" id="totalCount">TOTAL RECORDS: 0</div>
     <div class="header"><h3>SHUFFLER LOG SYSTEM</h3></div>
 
     <div class="form-content">
@@ -96,21 +97,21 @@
                         <option value="MD">MD</option>
                     </select>
                 </div>
+                <div class="input-group"><label>ASSET NUMBER</label><input type="text" id="assetNo" oninput="enforceAssetPrefix()" tabindex="6"></div>
             </div>
 
             <div class="input-row">
                 <div class="search-wrapper">
                     <label>ERROR MESSAGE</label>
-                    <input type="text" id="error" autocomplete="off" onfocus="showList('errorSelect')" onkeyup="filterList('error', 'errorSelect')" onblur="setTimeout(() => document.getElementById('errorSelect').style.display='none', 150)" tabindex="6">
+                    <input type="text" id="error" autocomplete="off" onfocus="showList('errorSelect')" onkeyup="filterList('error', 'errorSelect')" onblur="setTimeout(() => document.getElementById('errorSelect').style.display='none', 150)" tabindex="7">
                     <select id="errorSelect" class="dropdown-list" size="5" tabindex="-1"></select>
                 </div>
-                <div class="input-group"><label>SURVEILLANCE</label><input type="text" id="surveillance" tabindex="7"></div>
+                <div class="input-group"><label>SURVEILLANCE</label><input type="text" id="surveillance" tabindex="8"></div>
                 <div class="search-wrapper">
                     <label>TECHNICIAN</label>
-                    <input type="text" id="tech" autocomplete="off" onfocus="showList('techSelect')" onkeyup="filterList('tech', 'techSelect')" onblur="setTimeout(() => document.getElementById('techSelect').style.display='none', 150)" tabindex="8">
+                    <input type="text" id="tech" autocomplete="off" onfocus="showList('techSelect')" onkeyup="filterList('tech', 'techSelect')" onblur="setTimeout(() => document.getElementById('techSelect').style.display='none', 150)" tabindex="9">
                     <select id="techSelect" class="dropdown-list" size="5" tabindex="-1"></select>
                 </div>
-                <div class="input-group"><label>ASSET NUMBER</label><input type="text" id="assetNo" oninput="enforceAssetPrefix()" tabindex="9"></div>
                 <div class="input-group" style="flex:2;">
                     <label id="remarksLabel">REMARKS (MANDATORY FOR SWAPS/DEPT)</label>
                     <input type="text" id="remarks" placeholder="ENTER DETAILS HERE..." tabindex="10">
@@ -124,21 +125,21 @@
                 <button class="btn btn-clear" onclick="deselect()">CLEAR FORM</button>
                 <button class="btn btn-excel" onclick="exportExcel()">EXPORT EXCEL</button>
                 <button class="btn btn-reset" onclick="hardReset()">SYSTEM RESET</button>
-                <button class="btn" style="background: var(--primary-slate);" onclick="syncFromServer(true)">SYNC NOW</button>
+                <button class="btn" style="background: var(--action-blue);" onclick="syncFromServer(true)">SYNC NOW</button>
             </div>
         </div>
 
         <div class="search-container">
-            <div style="display: flex; align-items: center; background: #F3F4F6; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border-grey);">
-                <span style="font-weight:700; font-size: 0.8rem; color: #000000; margin-right: 10px;">VIEW MONTH:</span>
-                <select id="monthSelector" onchange="changeMonth()" style="width: auto; padding: 4px; border: none; background: transparent; cursor: pointer; color: var(--text-dark); font-weight: 700; outline: none;"></select>
+            <div style="display: flex; align-items: center; background: #E0F2FE; padding: 6px 12px; border-radius: 6px; border: 1px solid #000000;">
+                <span style="font-weight:800; font-size: 0.8rem; color: #000000; margin-right: 10px;">VIEW MONTH:</span>
+                <select id="monthSelector" onchange="changeMonth()" style="width: auto; padding: 4px; border: none; background: transparent; cursor: pointer; color: #000000; font-weight: 800; outline: none;"></select>
             </div>
-            <input type="text" id="tableSearch" placeholder="SEARCH TABLE, MODEL, TECH, ASSET..." onkeyup="searchTable()" style="flex:1; margin-left:15px;">
+            <input type="text" id="tableSearch" placeholder="SEARCH TABLE, MODEL, TECH, ASSET..." onkeyup="searchTable()" style="flex:1; margin-left:15px; border: 1px solid #000000;">
         </div>
 
         <div class="table-wrapper">
             <table id="dataTable">
-                <thead><tr><th>SR.</th><th>DATE</th><th>TIME</th><th>INFORMED</th><th>TABLE</th><th>MODEL</th><th>ERROR</th><th>SURV.</th><th>TECH</th><th>ASSET</th><th>REMARKS</th></tr></thead>
+                <thead><tr><th>SR.</th><th>DATE</th><th>TIME</th><th>INFORMED</th><th>TABLE</th><th>MODEL</th><th>ASSET</th><th>ERROR</th><th>SURV.</th><th>TECH</th><th>REMARKS</th></tr></thead>
                 <tbody></tbody>
             </table>
         </div>
@@ -148,9 +149,11 @@
 
 <script>
     // MAKE SURE TO PASTE YOUR GOOGLE SCRIPT URL HERE
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzhj5XH0TdEDMCY15Fm1ODfSUjnp7VabZmVyeEZYIyW5KBLHM-csuRQBJB3Tblx8kVw/exec"; 
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx7Rdu-pi5oUD25PNlHr5O0XfIx6bM8YBur6VOPC4BlXEPOIHQwun9m5OUmsApO-ixg/exec"; 
     
-    const fields = ["date", "time", "informedBy", "tableNo", "shuffler", "error", "surveillance", "tech", "assetNo", "remarks"];
+    // REARRANGED FIELD ORDER
+    const fields = ["date", "time", "informedBy", "tableNo", "shuffler", "assetNo", "error", "surveillance", "tech", "remarks"];
+    
     const LIMIT_MINUTES = 10;
     const SPECIAL_ERRORS = ["SHUFFLER BROUGHT TO DEPARTMENT", "SHUFFLER SWAPPED WITH OTHER TABLE"];
 
@@ -236,7 +239,6 @@
         const tbody = document.querySelector('#dataTable tbody');
         tbody.innerHTML = "";
 
-        // --- MASTER FRONTEND SORTER: Forces Date/Time Descending ---
         dataList.sort((a, b) => {
             let strA = (a.date || "") + "T" + (a.time || "");
             let strB = (b.date || "") + "T" + (b.time || "");
@@ -331,14 +333,19 @@
         const rows = document.querySelectorAll('#dataTable tbody tr');
         const counts = {};
         rows.forEach((r) => {
-            const asset = r.cells[9].innerText.trim();
+            // Asset is now in cell index 6
+            const asset = r.cells[6].innerText.trim();
             if(asset && !asset.endsWith("- ")) counts[asset] = (counts[asset] || 0) + 1;
         });
-        document.getElementById('totalCount').innerText = "TOTAL RECORDS: " + rows.length;
+        
+        document.getElementById('totalCount').innerHTML = `TOTAL RECORDS: <span style="color: red;">${rows.length}</span>`;
+
         const top = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 3);
-        let txt = top.length ? "" : "NO DATA";
-        top.forEach(([a, c], i) => txt += `${i + 1}. ${a} (${c})\n`);
-        document.getElementById('topAssets').innerText = txt.trim();
+        let htmlParts = [];
+        top.forEach(([a, c]) => { htmlParts.push(`${a}: <span style="color: red;">${c}</span>`); });
+        
+        if (htmlParts.length > 0) document.getElementById('topAssets').innerHTML = htmlParts.join(' &nbsp;&nbsp;|&nbsp;&nbsp; ');
+        else document.getElementById('topAssets').innerHTML = "NO DATA";
     }
 
     function handleShufflerChange() { loadErrorList(); enforceAssetPrefix(); }
@@ -362,11 +369,7 @@
         techNames.sort().forEach(name => { 
             let opt = document.createElement('option'); 
             opt.value = opt.text = name; 
-            opt.onmousedown = function(e) {
-                e.preventDefault(); 
-                document.getElementById('tech').value = this.value;
-                sel.style.display = "none";
-            };
+            opt.onmousedown = function(e) { e.preventDefault(); document.getElementById('tech').value = this.value; sel.style.display = "none"; };
             sel.appendChild(opt); 
         });
     }
@@ -380,9 +383,7 @@
                 let opt = document.createElement('option'); 
                 opt.value = opt.text = err; 
                 opt.onmousedown = function(e) {
-                    e.preventDefault();
-                    document.getElementById('error').value = this.value;
-                    sel.style.display = "none";
+                    e.preventDefault(); document.getElementById('error').value = this.value; sel.style.display = "none";
                     const isSpecial = SPECIAL_ERRORS.includes(this.value);
                     document.getElementById('remarks').style.background = isSpecial ? "#FEF2F2" : "var(--input-grey)";
                 };
@@ -398,9 +399,7 @@
         const f = document.getElementById(inputId).value.toUpperCase();
         const opts = document.getElementById(selectId).options;
         let v = 0;
-        for (let o of opts) { 
-            let m = o.text.includes(f); o.style.display = m ? "" : "none"; if(m) v++; 
-        }
+        for (let o of opts) { let m = o.text.includes(f); o.style.display = m ? "" : "none"; if(m) v++; }
         document.getElementById(selectId).style.display = v > 0 ? "block" : "none";
     }
 
@@ -417,8 +416,7 @@
         document.getElementById('btnUpdate').disabled = true;
         document.getElementById('btnDelete').disabled = true; 
         
-        clearInputs(); 
-        resetPrefixes(); 
+        clearInputs(); resetPrefixes(); 
         
         document.getElementById('date').value = lockedDate;
         document.getElementById('time').value = lockedTime;
@@ -429,7 +427,6 @@
 
     function clearInputs() { ["informedBy", "tableNo", "error", "assetNo", "tech", "shuffler", "surveillance", "remarks"].forEach(id => document.getElementById(id).value = ""); }
 
-    // THE FIXED EXCEL EXPORT - FORCES PROPER ROWS IN WINDOWS
     function exportExcel() {
         let csv = []; 
         let rows = document.querySelectorAll("#dataTable tr");
@@ -439,7 +436,6 @@
                 let row = []; 
                 let cols = rows[i].querySelectorAll("th, td");
                 for (let j = 0; j < cols.length; j++) {
-                    // Cleans text so line breaks don't crash the export
                     let cleanText = cols[j].innerText.replace(/(\r\n|\n|\r)/gm, " ").replace(/"/g, '""');
                     row.push('"' + cleanText + '"');
                 }
@@ -447,17 +443,25 @@
             }
         }
         
-        // The \r\n forces Windows Excel to actually drop down to the next row!
-        let csvContent = "data:text/csv;charset=utf-8,\uFEFF" + encodeURIComponent(csv.join("\r\n"));
-        let monthName = document.getElementById('monthSelector').value;
-        if (!monthName) monthName = "EXPORT";
+        let csvString = csv.join("\r\n");
+        let finalCsvContent = "\uFEFF" + csvString;
+        let blob = new Blob([finalCsvContent], { type: 'text/csv;charset=utf-8;' });
+        
+        let monthName = document.getElementById('monthSelector').value || "EXPORT";
+        let filename = "SHUFFLER_LOG_" + monthName + ".csv";
 
         let link = document.createElement("a");
-        link.setAttribute("href", csvContent);
-        link.setAttribute("download", "SHUFFLER_LOG_" + monthName + ".csv");
+        let url = URL.createObjectURL(blob);
+        
+        link.setAttribute("href", url);
+        link.setAttribute("download", filename);
+        link.style.visibility = 'hidden';
+        
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
+        
+        setTimeout(function() { URL.revokeObjectURL(url); }, 500);
     }
     
     function hardReset() {
