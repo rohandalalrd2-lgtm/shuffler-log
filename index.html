@@ -61,11 +61,9 @@
         .dropdown-list option { padding: 8px 12px; cursor: pointer; color: #000000; font-weight: 600; }
         .dropdown-list option:hover { background-color: #E0F2FE; color: #000000; }
         
-        /* ADDED overflow-x: auto SO THE STRAIGHT LINES CAN SCROLL LEFT/RIGHT */
         .table-wrapper { max-height: 450px; overflow-y: auto; overflow-x: auto; border: 1px solid var(--border-grey); border-radius: 6px; }
         table { width: 100%; border-collapse: collapse; cursor: pointer; background: white; }
         
-        /* ADDED white-space: nowrap TO PREVENT TEXT FROM WRAPPING ONTO TWO LINES */
         th, td { border-bottom: 1px solid var(--border-grey); padding: 14px 16px; text-align: center; font-size: 0.8rem; color: #000000; white-space: nowrap; }
         
         td { font-weight: 500; color: #000000; }
@@ -193,9 +191,24 @@
         loadFromStorage(); 
         initTechList(); 
         
-        const n = new Date();
-        lockedDate = n.toISOString().split('T')[0];
-        lockedTime = n.toTimeString().slice(0,5);
+        let now = new Date();
+        let actualHours = now.getHours();
+        
+        // AUTO-DATE SHIFT: If it's before 8:00 AM, automatically set the form date to "Yesterday"
+        let shiftDate = new Date(now);
+        if (actualHours < 8) {
+            shiftDate.setDate(shiftDate.getDate() - 1);
+        }
+        
+        let yyyy = shiftDate.getFullYear();
+        let mm = String(shiftDate.getMonth() + 1).padStart(2, '0');
+        let dd = String(shiftDate.getDate()).padStart(2, '0');
+        lockedDate = `${yyyy}-${mm}-${dd}`;
+        
+        let hh = String(actualHours).padStart(2, '0');
+        let mins = String(now.getMinutes()).padStart(2, '0');
+        lockedTime = `${hh}:${mins}`;
+        
         document.getElementById('date').value = lockedDate;
         document.getElementById('time').value = lockedTime;
         
@@ -263,24 +276,49 @@
         }
     }
 
+    // --- BULLETPROOF 8 AM to 8 AM SHIFT SORTING ENGINE ---
     function renderTable(dataList) {
         const tbody = document.querySelector('#dataTable tbody');
         tbody.innerHTML = "";
 
         dataList.sort((a, b) => {
-            let timeA = a.time || "00:00";
-            if(timeA.length === 4) timeA = "0" + timeA;
-            
-            let timeB = b.time || "00:00";
-            if(timeB.length === 4) timeB = "0" + timeB;
+            // Parse strings safely handling both YYYY-MM-DD and DD-MM-YYYY
+            let parseStr = (d) => {
+                let ds = d || "1970-01-01";
+                if (ds.includes("-")) {
+                    let p = ds.split("-");
+                    if (p[0].length === 2 && p[2].length === 4) ds = `${p[2]}-${p[1]}-${p[0]}`;
+                }
+                return ds;
+            };
 
-            let dateA = new Date((a.date || "1970-01-01") + "T" + timeA + ":00").getTime();
-            let dateB = new Date((b.date || "1970-01-01") + "T" + timeB + ":00").getTime();
+            let dA = parseStr(a.date);
+            let dB = parseStr(b.date);
             
-            if(isNaN(dateA)) dateA = 0;
-            if(isNaN(dateB)) dateB = 0;
+            let tA = a.time || "00:00";
+            if(tA.length === 4) tA = "0" + tA;
+            let tB = b.time || "00:00";
+            if(tB.length === 4) tB = "0" + tB;
+            
+            let msA = new Date(dA + "T00:00:00").getTime();
+            let msB = new Date(dB + "T00:00:00").getTime();
+            
+            let hrA = parseInt(tA.split(":")[0]) || 0;
+            let minA = parseInt(tA.split(":")[1]) || 0;
+            let hrB = parseInt(tB.split(":")[0]) || 0;
+            let minB = parseInt(tB.split(":")[1]) || 0;
+            
+            // MATH: Shifts the 24 hour clock so 08:00 becomes hour '0', forcing 02:00 AM to calculate AFTER 23:00 PM
+            let shiftHrA = (hrA >= 8) ? (hrA - 8) : (hrA + 16);
+            let shiftHrB = (hrB >= 8) ? (hrB - 8) : (hrB + 16);
+            
+            let valA = msA + ((shiftHrA * 60) + minA) * 60000;
+            let valB = msB + ((shiftHrB * 60) + minB) * 60000;
+            
+            if(isNaN(valA)) valA = 0;
+            if(isNaN(valB)) valB = 0;
 
-            return sortDescending ? dateB - dateA : dateA - dateB;
+            return sortDescending ? valB - valA : valA - valB;
         });
 
         dataList.forEach((item, index) => {
