@@ -47,7 +47,7 @@
         .action-bar { display: flex; gap: 12px; margin-top: 25px; padding: 16px; background: #F0F9FF; border-radius: 6px; border: 1px solid var(--border-grey); flex-wrap: wrap; }
         .btn { padding: 10px 16px; border: 1px solid #000000; border-radius: 6px; cursor: pointer; font-weight: 800; color: #000000; font-size: 0.8rem; flex: 1; text-transform: uppercase; min-width: 120px; transition: opacity 0.2s; letter-spacing: 0.5px; }
         .btn:hover:not(:disabled) { opacity: 0.8; }
-        .btn:disabled { opacity: 0.4; cursor: not-allowed; border: 1px solid var(--border-grey); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; border: 1px solid var(--border-grey); background: #E2E8F0; color: #64748B; }
         .btn-save { background: var(--success); }
         .btn-update { background: var(--warning); }
         .btn-delete { background: var(--danger); }
@@ -81,9 +81,17 @@
         
         #sortToggleBtn { background: #FFFFFF; border: 1px solid #000000; color: #000000; font-weight: 800; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: all 0.2s ease; margin-right: 15px; }
         #sortToggleBtn:hover { background: #F0F9FF; }
+
+        /* --- TOAST NOTIFICATION STYLES --- */
+        #toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 10px; }
+        .toast { padding: 14px 24px; border-radius: 6px; font-weight: 800; font-size: 0.85rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2); transition: opacity 0.3s ease; opacity: 1; text-transform: uppercase; letter-spacing: 0.5px; border: 2px solid #000; }
+        .toast-error { background: #FEE2E2; color: #000000; border-color: #DC2626; }
+        .toast-success { background: #DCFCE7; color: #000000; border-color: #16A34A; }
     </style>
 </head>
 <body onclick="checkClickOutside(event)" onload="initApp()">
+
+<div id="toast-container"></div>
 
 <div class="container" id="mainContainer">
     <div class="top-issues-container" id="topAssets">FETCHING DATA...</div>
@@ -187,6 +195,33 @@
     let lockedDate = "";
     let lockedTime = "";
 
+    // --- NEW TOAST NOTIFICATION FUNCTION ---
+    function showToast(message, type = 'success') {
+        const container = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = `toast toast-${type}`;
+        toast.innerText = message;
+        container.appendChild(toast);
+        
+        setTimeout(() => {
+            toast.style.opacity = '0';
+            setTimeout(() => toast.remove(), 300);
+        }, 3000);
+    }
+
+    // --- NEW BUTTON LOADING (DOUBLE-ENTRY PREVENTION) ---
+    function setButtonLoading(btnId, isSubmitting, loadingText = "SAVING...") {
+        const btn = document.getElementById(btnId);
+        if (isSubmitting) {
+            btn.dataset.originalText = btn.innerText;
+            btn.innerText = loadingText;
+            btn.disabled = true;
+        } else {
+            btn.innerText = btn.dataset.originalText;
+            btn.disabled = false;
+        }
+    }
+
     async function initApp() { 
         loadFromStorage(); 
         initTechList(); 
@@ -213,7 +248,9 @@
         
         resetPrefixes(); 
         await syncFromServer(true); 
-        setInterval(() => syncFromServer(false), 2000); 
+        
+        // --- QUOTA BOMB FIX: Polling extended to every 30 seconds ---
+        setInterval(() => syncFromServer(false), 30000); 
     }
 
     function toggleSort() {
@@ -354,7 +391,6 @@
         refreshTable(dataList);
     }
 
-    // --- REMOVED THE STRICT "SHFL" REQUIREMENT ---
     function refreshTable(dataList) {
         const counts = {};
         let total = 0;
@@ -364,7 +400,6 @@
             dataList.forEach(item => {
                 const asset = (item.assetNo || "").trim();
                 
-                // Now it just verifies that the box isn't empty, and isn't just a default prefix like "SHFL-DM- "
                 if (asset && asset.length > 2 && !asset.endsWith("- ")) {
                     counts[asset] = (counts[asset] || 0) + 1;
                 }
@@ -389,25 +424,31 @@
         const remarksVal = document.getElementById('remarks').value.trim();
 
         if (document.getElementById('tableNo').value === "FT " || document.getElementById('assetNo').value === getAssetPrefix()) { 
-            alert("INCOMPLETE DATA: PLEASE ENTER TABLE AND ASSET NO."); return; 
+            showToast("INCOMPLETE DATA: PLEASE ENTER TABLE AND ASSET NO.", "error"); return; 
         }
         if (SPECIAL_ERRORS.includes(errorVal) && remarksVal === "") {
             document.getElementById('remarks').style.borderColor = "var(--danger)";
             document.getElementById('remarks').focus();
-            alert("REMARKS ARE COMPULSORY FOR: " + errorVal); return;
+            showToast("REMARKS ARE COMPULSORY FOR: " + errorVal, "error"); return;
         }
         for (let id of fields) { 
-            if (id !== 'remarks' && document.getElementById(id).value.trim() === "") { alert("ALL FIELDS REQUIRED"); return; } 
+            if (id !== 'remarks' && document.getElementById(id).value.trim() === "") { 
+                showToast("ALL FIELDS REQUIRED", "error"); return; 
+            } 
         }
         
         lockedDate = document.getElementById('date').value;
         lockedTime = document.getElementById('time').value;
         
+        // --- DOUBLE ENTRY PREVENTION: Turn button grey and disable it ---
+        setButtonLoading('btnSave', true, 'SAVING...');
+        
         const rowID = "ID-" + Date.now();
         let dataObj = { id: rowID, action: "SAVE" };
         fields.forEach(id => dataObj[id] = document.getElementById(id).value.toUpperCase());
 
-        syncToSheet(dataObj);
+        // Sync and trigger success toast
+        syncToSheet(dataObj, 'btnSave', 'RECORD SAVED SUCCESSFULLY!');
         deselect();
     }
 
@@ -416,16 +457,24 @@
         lockedDate = document.getElementById('date').value;
         lockedTime = document.getElementById('time').value;
 
+        // --- DOUBLE ENTRY PREVENTION ---
+        setButtonLoading('btnUpdate', true, 'UPDATING...');
+
         const rowID = selectedRow.getAttribute("data-id");
         let dataObj = { id: rowID, action: "UPDATE" };
         fields.forEach(id => dataObj[id] = document.getElementById(id).value.toUpperCase());
-        syncToSheet(dataObj);
+        
+        syncToSheet(dataObj, 'btnUpdate', 'RECORD UPDATED SUCCESSFULLY!');
         deselect();
     }
 
     function deleteData() {
         if (!selectedRow) return;
         if (confirm("ARE YOU SURE YOU WANT TO DELETE THIS LOG? THIS WILL REMOVE IT FROM ALL COMPUTERS.")) {
+            
+            // --- DOUBLE ENTRY PREVENTION ---
+            setButtonLoading('btnDelete', true, 'DELETING...');
+            
             const rowID = selectedRow.getAttribute("data-id");
             let dataObj = { id: rowID, action: "DELETE" };
             fields.forEach(id => dataObj[id] = document.getElementById(id).value.toUpperCase());
@@ -435,16 +484,28 @@
             localStorage.setItem('shufflerLogsAssetV2', JSON.stringify(stored));
             renderTable(stored);
 
-            syncToSheet(dataObj);
+            syncToSheet(dataObj, 'btnDelete', 'RECORD DELETED!');
             deselect();
         }
     }
 
-    async function syncToSheet(data) {
+    // --- REBUILT SYNC FUNCTION TO HANDLE BUTTON UNLOCKING AND TOASTS ---
+    async function syncToSheet(data, btnId = null, successMsg = null) {
         if(!SCRIPT_URL.startsWith("https")) return;
         document.getElementById('syncStatus').innerText = "SAVING TO MASTER CLOUD...";
-        fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(data) })
-            .then(() => setTimeout(() => syncFromServer(true), 1000));
+        
+        try {
+            await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(data) });
+            
+            if (btnId) setButtonLoading(btnId, false);
+            if (successMsg) showToast(successMsg, "success");
+            
+            setTimeout(() => syncFromServer(true), 1000);
+        } catch (e) {
+            if (btnId) setButtonLoading(btnId, false);
+            showToast("NETWORK ERROR. PLEASE RETRY.", "error");
+            document.getElementById('syncStatus').innerText = "OFFLINE MODE - RETRYING SOON...";
+        }
     }
 
     function checkExpiry(rowID) { return (Date.now() - parseInt(rowID.split('-')[1])) / (1000 * 60) > LIMIT_MINUTES; }
@@ -578,7 +639,10 @@
         const dataObj = { action: "RESET", passcode: pass };
         
         fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(dataObj) })
-            .then(() => setTimeout(() => { localStorage.removeItem('shufflerLogsAssetV2'); location.reload(); }, 1500));
+            .then(() => {
+                showToast("SYSTEM WIPE SUCCESSFUL", "success");
+                setTimeout(() => { localStorage.removeItem('shufflerLogsAssetV2'); location.reload(); }, 1500);
+            });
     }
 
     document.querySelector('#dataTable tbody').addEventListener('click', e => {
