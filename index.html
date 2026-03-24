@@ -30,7 +30,7 @@
         .container { max-width: 1400px; margin: auto; background: var(--bg-form-grey); padding-bottom: 20px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(2, 132, 199, 0.1), 0 2px 4px -1px rgba(2, 132, 199, 0.06); position: relative; overflow: hidden; border: 1px solid var(--border-grey); }
         .header { background-color: var(--primary-slate); width: 100%; padding: 22px 0; text-align: center; margin-bottom: 25px; border-bottom: 2px solid #0284C7; }
         
-        .header h3 { margin: 0; font-size: 1.82rem; letter-spacing: 2px; font-weight: 900; color: #000000; }
+        .header h3 { margin: 0; font-size: 2.18rem; margin-left: 50px; letter-spacing: 2px; font-weight: 900; color: #000000; }
         
         .top-issues-container { position: absolute; top: 22px; left: 25px; text-align: left; font-weight: 800; font-size: 0.9rem; color: #000000; white-space: nowrap; }
         .total-badge-container { position: absolute; top: 22px; right: 25px; text-align: right; font-weight: 800; font-size: 0.9rem; color: #000000; white-space: nowrap; }
@@ -194,7 +194,6 @@
         let now = new Date();
         let actualHours = now.getHours();
         
-        // AUTO-DATE SHIFT: If it's before 8:00 AM, automatically set the form date to "Yesterday"
         let shiftDate = new Date(now);
         if (actualHours < 8) {
             shiftDate.setDate(shiftDate.getDate() - 1);
@@ -276,13 +275,11 @@
         }
     }
 
-    // --- BULLETPROOF 8 AM to 8 AM SHIFT SORTING ENGINE ---
     function renderTable(dataList) {
         const tbody = document.querySelector('#dataTable tbody');
         tbody.innerHTML = "";
 
         dataList.sort((a, b) => {
-            // Parse strings safely handling both YYYY-MM-DD and DD-MM-YYYY
             let parseStr = (d) => {
                 let ds = d || "1970-01-01";
                 if (ds.includes("-")) {
@@ -308,7 +305,6 @@
             let hrB = parseInt(tB.split(":")[0]) || 0;
             let minB = parseInt(tB.split(":")[1]) || 0;
             
-            // MATH: Shifts the 24 hour clock so 08:00 becomes hour '0', forcing 02:00 AM to calculate AFTER 23:00 PM
             let shiftHrA = (hrA >= 8) ? (hrA - 8) : (hrA + 16);
             let shiftHrB = (hrB >= 8) ? (hrB - 8) : (hrB + 16);
             
@@ -358,6 +354,7 @@
         refreshTable(dataList);
     }
 
+    // --- REMOVED THE STRICT "SHFL" REQUIREMENT ---
     function refreshTable(dataList) {
         const counts = {};
         let total = 0;
@@ -366,7 +363,9 @@
             total = dataList.length;
             dataList.forEach(item => {
                 const asset = (item.assetNo || "").trim();
-                if (asset && asset.includes("SHFL") && !asset.endsWith("- ")) {
+                
+                // Now it just verifies that the box isn't empty, and isn't just a default prefix like "SHFL-DM- "
+                if (asset && asset.length > 2 && !asset.endsWith("- ")) {
                     counts[asset] = (counts[asset] || 0) + 1;
                 }
             });
@@ -381,7 +380,7 @@
         if (htmlParts.length > 0) {
             document.getElementById('topAssets').innerHTML = htmlParts.join(' &nbsp;&nbsp;|&nbsp;&nbsp; ');
         } else {
-            document.getElementById('topAssets').innerHTML = "NO ASSETS LOGGED";
+            document.getElementById('topAssets').innerHTML = "NO DATA";
         }
     }
 
