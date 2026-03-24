@@ -473,7 +473,7 @@
         if (confirm("ARE YOU SURE YOU WANT TO DELETE THIS LOG? THIS WILL REMOVE IT FROM ALL COMPUTERS.")) {
             
             // --- DOUBLE ENTRY PREVENTION ---
-            setButtonLoading('btnDelete', true, 'DELETING...');
+            setButtonLoading('btnDelete', true, 'DELETE...');
             
             const rowID = selectedRow.getAttribute("data-id");
             let dataObj = { id: rowID, action: "DELETE" };
