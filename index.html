@@ -20,20 +20,21 @@
             --border-grey: #BAE6FD; 
             --border-focus: #38BDF8; 
             
-            --success: #4ADE80; 
-            --warning: #FACC15; 
-            --danger: #F87171; 
-            --action-blue: #38BDF8; 
+            --success: #81C784; 
+            --warning: #FFD54F; 
+            --danger: #E57373; 
+            --action-blue: #64B5F6; 
         }
 
         body { font-family: 'Inter', '-apple-system', 'Segoe UI', Arial, sans-serif; padding: 20px; background: var(--bg-body-grey); text-transform: uppercase; color: #000000; font-weight: 600; letter-spacing: 0.2px; }
         .container { max-width: 1400px; margin: auto; background: var(--bg-form-grey); padding-bottom: 20px; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(2, 132, 199, 0.1), 0 2px 4px -1px rgba(2, 132, 199, 0.06); position: relative; overflow: hidden; border: 1px solid var(--border-grey); }
         .header { background-color: var(--primary-slate); width: 100%; padding: 22px 0; text-align: center; margin-bottom: 25px; border-bottom: 2px solid #0284C7; }
         
-        .header h3 { margin: 0; font-size: 2.18rem; margin-left: 50px; letter-spacing: 2px; font-weight: 900; color: #000000; }
+        .header h3 { margin: 0; font-size: 2.18rem; margin-left: 15%; letter-spacing: 2px; font-weight: 900; color: red; }
         
         .top-issues-container { position: absolute; top: 22px; left: 25px; text-align: left; font-weight: 800; font-size: 0.9rem; color: #000000; white-space: nowrap; }
-        .total-badge-container { position: absolute; top: 22px; right: 25px; text-align: right; font-weight: 800; font-size: 0.9rem; color: #000000; white-space: nowrap; }
+        .top-shufflers-container { position: absolute; top: 52px; left: 25px; text-align: left; font-weight: 800; font-size: 0.9rem; color: #000000; white-space: nowrap; }
+        .total-badge-container { position: absolute; top: 22px; right: 25px; text-align: right; font-weight: 800; font-size: 1.08rem; color: #000000; white-space: nowrap; }
         
         .form-content { padding: 0 25px; }
         .form-section { background: var(--bg-form-grey); padding: 24px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--border-grey); box-shadow: 0 1px 2px rgba(2,132,199,0.05); }
@@ -48,12 +49,15 @@
         .btn { padding: 10px 16px; border: 1px solid #000000; border-radius: 6px; cursor: pointer; font-weight: 800; color: #000000; font-size: 0.8rem; flex: 1; text-transform: uppercase; min-width: 120px; transition: opacity 0.2s; letter-spacing: 0.5px; }
         .btn:hover:not(:disabled) { opacity: 0.8; }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; border: 1px solid var(--border-grey); background: #E2E8F0; color: #64748B; }
-        .btn-save { background: var(--success); }
-        .btn-update { background: var(--warning); }
-        .btn-delete { background: var(--danger); }
-        .btn-clear { background: #E2E8F0; } 
-        .btn-excel { background: var(--action-blue); } 
-        .btn-reset { background: white; color: #000000; } 
+        
+        /* NEW BUTTON COLORS - PROFESSIONAL MUTED PALETTE */
+        .btn-save { background: #81C784; }   /* Muted Green */
+        .btn-update { background: #FFD54F; } /* Muted Gold */
+        .btn-delete { background: #E57373; } /* Muted Red */
+        .btn-clear { background: #E0E0E0; }  /* Standard Grey */
+        .btn-excel { background: #4DB6AC; }  /* Muted Teal */
+        .btn-reset { background: #90A4AE; }  /* Blue Grey */
+        .btn-sync { background: #64B5F6; }   /* Muted Blue */
         
         .search-container { margin: 15px 0; display: flex; align-items: center; background: var(--bg-form-grey); padding: 12px; border-radius: 6px; border: 1px solid var(--border-grey); flex-wrap: wrap; gap: 10px; box-shadow: 0 1px 2px rgba(2,132,199,0.05); }
         .search-wrapper { position: relative; flex: 2; }
@@ -95,6 +99,7 @@
 
 <div class="container" id="mainContainer">
     <div class="top-issues-container" id="topAssets">FETCHING DATA...</div>
+    <div class="top-shufflers-container" id="topShufflers"></div>
     <div class="total-badge-container" id="totalCount">TOTAL RECORDS: 0</div>
 
     <div class="header"><h3>SHUFFLER LOG SYSTEM</h3></div>
@@ -146,12 +151,12 @@
                 <button class="btn btn-clear" onclick="deselect()">CLEAR FORM</button>
                 <button class="btn btn-excel" onclick="exportExcel()">EXPORT EXCEL</button>
                 <button class="btn btn-reset" onclick="hardReset()">SYSTEM RESET</button>
-                <button class="btn" style="background: var(--action-blue);" onclick="syncFromServer(true)">SYNC NOW</button>
+                <button class="btn btn-sync" onclick="syncFromServer(true)">SYNC NOW</button>
             </div>
         </div>
 
         <div class="search-container">
-            <div style="display: flex; align-items: center; background: #E0F2FE; padding: 6px 12px; border-radius: 6px; border: 1px solid #000000; margin-right: 15px;">
+            <div style="display: flex; align-items: center; background: #E0F2FE; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border-grey); margin-right: 15px;">
                 <span style="font-weight:800; font-size: 0.8rem; color: #000000; margin-right: 10px;">VIEW MONTH:</span>
                 <select id="monthSelector" onchange="changeMonth()" style="width: auto; padding: 4px; border: none; background: transparent; cursor: pointer; color: #000000; font-weight: 800; outline: none;"></select>
             </div>
@@ -393,21 +398,27 @@
 
     function refreshTable(dataList) {
         const counts = {};
+        const typeCounts = { "DECKMATE": {}, "MFS": {}, "SK-2": {} };
         let total = 0;
         
         if (dataList && dataList.length > 0) {
             total = dataList.length;
             dataList.forEach(item => {
                 const asset = (item.assetNo || "").trim();
+                const shuffler = (item.shuffler || "").trim().toUpperCase();
                 
                 if (asset && asset.length > 2 && !asset.endsWith("- ")) {
                     counts[asset] = (counts[asset] || 0) + 1;
+                    if (typeCounts[shuffler]) {
+                        typeCounts[shuffler][asset] = (typeCounts[shuffler][asset] || 0) + 1;
+                    }
                 }
             });
         }
         
         document.getElementById('totalCount').innerHTML = `TOTAL RECORDS: <span style="color: red;">${total}</span>`;
 
+        // Update overall top 3
         const top = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 3);
         let htmlParts = [];
         top.forEach(([a, c]) => { htmlParts.push(`${a}: <span style="color: red;">${c}</span>`); });
@@ -417,6 +428,23 @@
         } else {
             document.getElementById('topAssets').innerHTML = "NO DATA";
         }
+
+        // Update specific shuffler tops
+        const getTop = (dict) => {
+            const sorted = Object.entries(dict).sort((a, b) => b[1] - a[1]);
+            return sorted.length > 0 ? `${sorted[0][0]}: <span style="color: red;">${sorted[0][1]}</span>` : null;
+        };
+        
+        let subTops = [];
+        let dmTop = getTop(typeCounts["DECKMATE"]);
+        let mfsTop = getTop(typeCounts["MFS"]);
+        let sk2Top = getTop(typeCounts["SK-2"]);
+        
+        if (dmTop) subTops.push(dmTop);
+        if (mfsTop) subTops.push(mfsTop);
+        if (sk2Top) subTops.push(sk2Top);
+        
+        document.getElementById('topShufflers').innerHTML = subTops.join(' &nbsp;&nbsp;|&nbsp;&nbsp; ');
     }
 
     function saveData() {
