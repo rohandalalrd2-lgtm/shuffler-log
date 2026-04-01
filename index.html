@@ -50,11 +50,15 @@
         .form-section { background: var(--bg-form-grey); padding: 24px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--border-grey); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         .input-row { display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
         .input-group { flex: 1; min-width: 120px; }
-        label { font-weight: 800; display: block; margin-bottom: 8px; font-size: 0.75rem; color: var(--text-muted); letter-spacing: 0.5px; } 
         
-        input, select { width: 100%; padding: 10px 12px; border: 1px solid var(--border-grey); border-radius: 6px; box-sizing: border-box; font-size: 0.85rem; text-transform: uppercase; background: var(--input-grey); color: var(--text-main); font-weight: 600; transition: all 0.2s ease; }
+        label { font-weight: 800; display: block; margin-bottom: 8px; font-size: 0.86rem; color: var(--text-muted); letter-spacing: 0.5px; } 
+        .req-star { color: #DC2626; font-size: 1rem; margin-left: 2px; } 
+        
+        input, select { width: 100%; padding: 10px 12px; border: 1px solid var(--border-grey); border-radius: 6px; box-sizing: border-box; font-size: 0.85rem; text-transform: uppercase; background: var(--input-grey); color: var(--text-main); font-weight: 600; transition: all 0.2s ease; text-align: center; }
         input:focus, select:focus { outline: none; border-color: var(--border-focus); background: #fff; box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15); }
         
+        .error-highlight { border: 2px solid var(--btn-danger) !important; background-color: #FEF2F2 !important; }
+
         .action-bar { display: flex; gap: 12px; margin-top: 25px; padding: 16px; background: #F8FAFC; border-radius: 6px; border: 1px solid var(--border-grey); flex-wrap: wrap; }
         
         .btn { padding: 12px 16px; border: none; border-radius: 6px; cursor: pointer; font-weight: 800; color: #FFFFFF; font-size: 0.8rem; flex: 1; text-transform: uppercase; min-width: 120px; transition: all 0.2s ease; letter-spacing: 0.5px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
@@ -69,10 +73,11 @@
         .btn-excel { background: #059669; }  
         .btn-reset { background: var(--btn-secondary); }  
         .btn-sync { background: var(--btn-info); }
+        .btn-pass { background: #8B5CF6; } 
         
         .search-container { margin: 15px 0; background: #FFFFFF; padding: 16px; border-radius: 8px; border: 1px solid var(--border-grey); box-shadow: 0 1px 3px rgba(0,0,0,0.05); display: flex; flex-direction: column; gap: 12px; }
         .search-wrapper { position: relative; flex: 2; }
-        .dropdown-list { display: none; position: absolute; z-index: 100; background: white; width: 100%; max-height: 180px; overflow-y: auto; border: 1px solid var(--border-grey); border-radius: 6px; top: 100%; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .dropdown-list { display: none; position: absolute; z-index: 100; background: white; width: 100%; max-height: 180px; overflow-y: auto; border: 1px solid var(--border-grey); border-radius: 6px; top: 100%; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); text-align: center; }
         .dropdown-list option { padding: 10px 12px; cursor: pointer; color: var(--text-main); font-weight: 600; border-bottom: 1px solid #F1F5F9; }
         .dropdown-list option:hover { background-color: #F8FAFC; color: var(--primary-accent); }
         
@@ -148,13 +153,13 @@
     <div class="form-content">
         <div class="form-section">
             <div class="input-row">
-                <div class="input-group"><label>LOG DATE</label><input type="date" id="date" tabindex="1"></div>
-                <div class="input-group"><label>LOG TIME</label><input type="time" id="time" tabindex="2"></div>
-                <div class="input-group"><label>REPORTED BY</label><input type="text" id="informedBy" tabindex="3"></div>
+                <div class="input-group"><label>LOG DATE <span class="req-star">*</span></label><input type="date" id="date" tabindex="1"></div>
+                <div class="input-group"><label>LOG TIME <span class="req-star">*</span></label><input type="time" id="time" tabindex="2"></div>
+                <div class="input-group"><label>REPORTED BY <span class="req-star">*</span></label><input type="text" id="informedBy" tabindex="3"></div>
                 <div class="input-group"><label>DEALER</label><input type="text" id="dealer" tabindex="4"></div>
-                <div class="input-group"><label>TABLE NO</label><input type="text" id="tableNo" oninput="enforcePrefix('tableNo', 'FT ')" tabindex="5"></div>
+                <div class="input-group"><label>TABLE NO <span class="req-star">*</span></label><input type="text" id="tableNo" oninput="enforcePrefix('tableNo', 'FT ')" tabindex="5"></div>
                 <div class="input-group">
-                    <label>SHUFFLER TYPE</label>
+                    <label>SHUFFLER TYPE <span class="req-star">*</span></label>
                     <select id="shuffler" onchange="handleShufflerChange()" tabindex="6">
                         <option value="">SELECT MODEL</option>
                         <option value="DECKMATE">DECKMATE</option>
@@ -168,20 +173,20 @@
             </div>
 
             <div class="input-row">
-                <div class="input-group"><label>ASSET NUMBER</label><input type="text" id="assetNo" oninput="enforceAssetPrefix()" tabindex="7"></div>
+                <div class="input-group"><label>ASSET NUMBER <span class="req-star">*</span></label><input type="text" id="assetNo" oninput="enforceAssetPrefix()" tabindex="7"></div>
                 <div class="search-wrapper">
-                    <label>ERROR MESSAGE</label>
+                    <label>ERROR MESSAGE <span class="req-star">*</span></label>
                     <input type="text" id="error" autocomplete="off" onfocus="showList('errorSelect')" onkeyup="filterList('error', 'errorSelect')" onblur="setTimeout(() => document.getElementById('errorSelect').style.display='none', 150)" tabindex="8">
                     <select id="errorSelect" class="dropdown-list" size="5" tabindex="-1"></select>
                 </div>
-                <div class="input-group"><label>SURVEILLANCE</label><input type="text" id="surveillance" tabindex="9"></div>
+                <div class="input-group"><label>SURVEILLANCE <span class="req-star">*</span></label><input type="text" id="surveillance" tabindex="9"></div>
                 <div class="search-wrapper">
-                    <label>TECHNICIAN</label>
+                    <label>TECHNICIAN <span class="req-star">*</span></label>
                     <input type="text" id="tech" autocomplete="off" onfocus="showList('techSelect')" onkeyup="filterList('tech', 'techSelect')" onblur="setTimeout(() => document.getElementById('techSelect').style.display='none', 150)" tabindex="10">
                     <select id="techSelect" class="dropdown-list" size="5" tabindex="-1"></select>
                 </div>
                 <div class="input-group" style="flex:2;">
-                    <label id="remarksLabel">REMARKS (MANDATORY FOR SWAPS/DEPT/DAMAGE)</label>
+                    <label id="remarksLabel">REMARKS <span class="req-star">*</span> <span style="font-size: 0.7rem; color: #94A3B8; font-weight: 600;">(FOR SWAPS/DEPT/DAMAGE)</span></label>
                     <input type="text" id="remarks" placeholder="ENTER DETAILS HERE..." tabindex="11">
                 </div>
             </div>
@@ -241,6 +246,29 @@
     // --- PASTE YOUR EXACT APP SCRIPT URL HERE ---
     const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzT6KPnaDQRn-IXpgnU7TXK0iFwTNHXWIjUZ5sDFJPldBXYJrI7FcovcfG1_53GChN2/exec"; 
     
+    // --- GLOBAL LISTENER: REMOVE RED HIGHLIGHT WHEN USER TYPES ---
+    document.addEventListener('input', function(e) {
+        if (e.target.classList && e.target.classList.contains('error-highlight')) {
+            e.target.classList.remove('error-highlight');
+        }
+    });
+    document.addEventListener('change', function(e) {
+        if (e.target.classList && e.target.classList.contains('error-highlight')) {
+            e.target.classList.remove('error-highlight');
+        }
+    });
+
+    // Helper: Generate current Date & Time strings
+    function getCurrentDateTime() {
+        let now = new Date();
+        let yyyy = now.getFullYear();
+        let mm = String(now.getMonth() + 1).padStart(2, '0');
+        let dd = String(now.getDate()).padStart(2, '0');
+        let hh = String(now.getHours()).padStart(2, '0');
+        let mins = String(now.getMinutes()).padStart(2, '0');
+        return { date: `${yyyy}-${mm}-${dd}`, time: `${hh}:${mins}` };
+    }
+
     // --- AUTHENTICATION LOGIC ---
     let currentUser = "";
     
@@ -273,6 +301,19 @@
                 sessionStorage.setItem("shufflerAuthToken", data.name);
                 currentUser = data.name;
                 document.getElementById('informedBy').value = currentUser; 
+                
+                // --- NEW: RECORD THE LOGIN IN THE SPREADSHEET ---
+                const sessionID = "SESS-" + Date.now();
+                sessionStorage.setItem("shufflerSessionId", sessionID);
+                let dt = getCurrentDateTime();
+                
+                // Quietly push the login event
+                fetch(SCRIPT_URL, {
+                    method: "POST",
+                    mode: "no-cors",
+                    body: JSON.stringify({ action: "LOG_SESSION", eventType: "LOGIN", sessionId: sessionID, username: currentUser, date: dt.date, time: dt.time })
+                });
+
                 unlockDashboard();
             } else {
                 document.getElementById('loginError').style.display = 'block';
@@ -345,9 +386,27 @@
         initApp(); 
     }
 
+    // --- NEW: LOGOUT WITH TRACKING ---
     function logoutUser() {
-        sessionStorage.removeItem("shufflerAuthToken");
-        location.reload(); 
+        const sessionId = sessionStorage.getItem("shufflerSessionId");
+        
+        if (sessionId) {
+            let dt = getCurrentDateTime();
+            
+            // Quietly push the logout event to match the session ID
+            fetch(SCRIPT_URL, {
+                method: "POST",
+                mode: "no-cors",
+                body: JSON.stringify({ action: "LOG_SESSION", eventType: "LOGOUT", sessionId: sessionId, username: currentUser, date: dt.date, time: dt.time })
+            });
+        }
+        
+        // Wait half a second for the post request to fire, then clear local storage
+        setTimeout(() => {
+            sessionStorage.removeItem("shufflerAuthToken");
+            sessionStorage.removeItem("shufflerSessionId");
+            location.reload(); 
+        }, 500);
     }
 
     // --- EXISTING DASHBOARD LOGIC BELOW ---
@@ -656,24 +715,44 @@
         applyFilters();
     }
 
-    // --- ADDED ACTION USER TO SAVES/UPDATES/DELETES ---
-    function saveData() {
+    function validateForm() {
+        let isValid = true;
         const errorVal = document.getElementById('error').value.toUpperCase();
-        const remarksVal = document.getElementById('remarks').value.trim();
 
-        if (document.getElementById('tableNo').value === "FT " || document.getElementById('assetNo').value === getAssetPrefix()) { 
-            showToast("INCOMPLETE DATA: PLEASE ENTER TABLE AND ASSET NO.", "error"); return; 
+        for (let id of fields) {
+            let el = document.getElementById(id);
+            if (!el) continue;
+
+            el.classList.remove('error-highlight');
+            let val = el.value.trim();
+
+            if (id === 'dealer') {
+                continue;
+            } else if (id === 'tableNo' && val === "FT ") {
+                el.classList.add('error-highlight');
+                isValid = false;
+            } else if (id === 'assetNo' && val === getAssetPrefix()) {
+                el.classList.add('error-highlight');
+                isValid = false;
+            } else if (id === 'remarks') {
+                if (SPECIAL_ERRORS.includes(errorVal) && val === "") {
+                    el.classList.add('error-highlight');
+                    isValid = false;
+                }
+            } else if (val === "") {
+                el.classList.add('error-highlight');
+                isValid = false;
+            }
         }
-        if (SPECIAL_ERRORS.includes(errorVal) && remarksVal === "") {
-            document.getElementById('remarks').style.borderColor = "var(--btn-danger)";
-            document.getElementById('remarks').focus();
-            showToast("REMARKS ARE COMPULSORY FOR: " + errorVal, "error"); return;
+
+        if (!isValid) {
+            showToast("PLEASE FILL ALL HIGHLIGHTED FIELDS", "error");
         }
-        for (let id of fields) { 
-            if (id !== 'remarks' && document.getElementById(id).value.trim() === "") { 
-                showToast("ALL FIELDS REQUIRED", "error"); return; 
-            } 
-        }
+        return isValid;
+    }
+
+    function saveData() {
+        if (!validateForm()) return; 
         
         lockedDate = document.getElementById('date').value;
         lockedTime = document.getElementById('time').value;
@@ -681,7 +760,7 @@
         setButtonLoading('btnSave', true, 'SAVING...');
         
         const rowID = "ID-" + Date.now();
-        let dataObj = { id: rowID, action: "SAVE", actionUser: currentUser }; // Sends user to backend
+        let dataObj = { id: rowID, action: "SAVE", actionUser: currentUser };
         fields.forEach(id => dataObj[id] = document.getElementById(id).value.toUpperCase());
 
         syncToSheet(dataObj, 'btnSave', 'RECORD SAVED SUCCESSFULLY!');
@@ -690,13 +769,15 @@
 
     function updateData() {
         if (!selectedRow) return;
+        if (!validateForm()) return; 
+        
         lockedDate = document.getElementById('date').value;
         lockedTime = document.getElementById('time').value;
 
         setButtonLoading('btnUpdate', true, 'UPDATING...');
 
         const rowID = selectedRow.getAttribute("data-id");
-        let dataObj = { id: rowID, action: "UPDATE", actionUser: currentUser }; // Sends user to backend
+        let dataObj = { id: rowID, action: "UPDATE", actionUser: currentUser };
         fields.forEach(id => dataObj[id] = document.getElementById(id).value.toUpperCase());
         
         syncToSheet(dataObj, 'btnUpdate', 'RECORD UPDATED SUCCESSFULLY!');
@@ -710,7 +791,7 @@
             setButtonLoading('btnDelete', true, 'DELETE...');
             
             const rowID = selectedRow.getAttribute("data-id");
-            let dataObj = { id: rowID, action: "DELETE", actionUser: currentUser }; // Sends user to backend
+            let dataObj = { id: rowID, action: "DELETE", actionUser: currentUser }; 
             fields.forEach(id => dataObj[id] = document.getElementById(id).value.toUpperCase());
 
             let stored = JSON.parse(localStorage.getItem('shufflerLogsAssetV2') || "[]");
@@ -769,7 +850,13 @@
         techNames.sort().forEach(name => { 
             let opt = document.createElement('option'); 
             opt.value = opt.text = name; 
-            opt.onmousedown = function(e) { e.preventDefault(); document.getElementById('tech').value = this.value; sel.style.display = "none"; };
+            opt.onmousedown = function(e) { 
+                e.preventDefault(); 
+                let techInput = document.getElementById('tech');
+                techInput.value = this.value; 
+                techInput.classList.remove('error-highlight'); 
+                sel.style.display = "none"; 
+            };
             sel.appendChild(opt); 
         });
     }
@@ -783,9 +870,16 @@
                 let opt = document.createElement('option'); 
                 opt.value = opt.text = err; 
                 opt.onmousedown = function(e) {
-                    e.preventDefault(); document.getElementById('error').value = this.value; sel.style.display = "none";
+                    e.preventDefault(); 
+                    let errInput = document.getElementById('error');
+                    errInput.value = this.value; 
+                    errInput.classList.remove('error-highlight'); 
+                    sel.style.display = "none";
+                    
                     const isSpecial = SPECIAL_ERRORS.includes(this.value);
-                    document.getElementById('remarks').style.background = isSpecial ? "#FEF2F2" : "var(--input-grey)";
+                    if(!isSpecial) {
+                        document.getElementById('remarks').classList.remove('error-highlight');
+                    }
                 };
                 sel.appendChild(opt); 
             }); 
@@ -812,11 +906,10 @@
         
         clearInputs(); resetPrefixes(); 
         
+        document.querySelectorAll('.error-highlight').forEach(el => el.classList.remove('error-highlight'));
+        
         document.getElementById('date').value = lockedDate;
         document.getElementById('time').value = lockedTime;
-        
-        document.getElementById('remarks').style.borderColor = "var(--border-grey)";
-        document.getElementById('remarks').style.background = "var(--input-grey)";
     }
 
     function clearInputs() { ["informedBy", "dealer", "tableNo", "error", "assetNo", "tech", "shuffler", "surveillance", "remarks"].forEach(id => document.getElementById(id).value = ""); }
@@ -880,6 +973,8 @@
         document.getElementById('btnSave').disabled = true;
         document.getElementById('btnUpdate').disabled = false;
         document.getElementById('btnDelete').disabled = false; 
+        
+        document.querySelectorAll('.error-highlight').forEach(el => el.classList.remove('error-highlight'));
         
         let pulledDate = row.cells[1].innerText.trim();
         if (pulledDate.includes("-")) {
