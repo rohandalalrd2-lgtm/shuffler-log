@@ -25,6 +25,13 @@
 
         body { font-family: 'Inter', '-apple-system', 'Segoe UI', Arial, sans-serif; padding: 20px; background: var(--bg-body-grey); text-transform: uppercase; color: var(--text-main); font-weight: 600; letter-spacing: 0.2px; margin: 0; }
         
+        /* --- DEVICE LOCK OVERLAY --- */
+        #deviceLockOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0F172A; z-index: 20000; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white; text-align: center; }
+        #deviceLockOverlay h1 { color: var(--btn-danger); font-size: 3rem; margin-bottom: 10px; letter-spacing: 2px; }
+        #deviceLockOverlay p { color: #94A3B8; font-size: 1.2rem; font-weight: 700; margin-bottom: 30px; letter-spacing: 1px; }
+        .btn-register-device { background: transparent; border: 2px solid #334155; color: #64748B; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 800; font-size: 0.8rem; transition: all 0.3s ease; }
+        .btn-register-device:hover { background: #1E293B; color: #F8FAFC; border-color: #475569; }
+
         /* --- LOGIN & PASSWORD OVERLAY STYLES --- */
         .overlay-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(30, 41, 59, 0.95); z-index: 10000; display: flex; justify-content: center; align-items: center; }
         .login-box { background: var(--bg-form-grey); padding: 40px 30px; border-radius: 12px; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3); text-align: center; width: 320px; }
@@ -38,18 +45,20 @@
         .header { background-color: var(--primary-slate); width: 100%; padding: 24px 0; text-align: center; margin-bottom: 25px; border-bottom: 4px solid var(--primary-accent); }
         .header h3 { margin: 0; margin-left: 20%; font-size: 2.86rem; letter-spacing: 3px; font-weight: 900; color: #FFFFFF; }
         
-        .top-issues-container, .top-shufflers-container { position: absolute; left: 25px; text-align: left; font-weight: 800; font-size: 0.9rem; color: #FFFFFF; white-space: nowrap; }
+        .top-issues-container, .top-shufflers-container { position: absolute; left: 25px; text-align: left; font-weight: 800; font-size: 0.99rem; color: #FFFFFF; white-space: nowrap; }
         .top-issues-container { top: 22px; }
         .top-shufflers-container { top: 52px; }
         
-        .logout-btn-top { position: absolute; top: 20px; right: 25px; background: transparent; border: none; cursor: pointer; color: #FFFFFF; opacity: 0.8; transition: all 0.2s ease; padding: 0; display: flex; align-items: center; justify-content: center; }
-        .logout-btn-top:hover { opacity: 1; transform: scale(1.1); color: var(--btn-danger); }
-        .logout-btn-top svg { width: 28px; height: 28px; }
+        /* 3D BLUE POWER BUTTON LOGOUT */
+        .logout-btn-top { position: absolute; top: 12px; right: 25px; background: linear-gradient(to bottom, #0055FF, #001199); border: 2px solid #000B44; border-radius: 12px; cursor: pointer; color: #FFFFFF; transition: all 0.2s ease; padding: 6px 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; box-shadow: inset 0px 2px 2px rgba(255,255,255,0.4), 0px 4px 5px rgba(0,0,0,0.3); }
+        .logout-btn-top:hover { transform: scale(1.05); background: linear-gradient(to bottom, #1A6DFF, #001177); box-shadow: inset 0px 2px 2px rgba(255,255,255,0.5), 0px 6px 8px rgba(0,0,0,0.4); }
+        .logout-btn-top svg { width: 22px; height: 22px; stroke-width: 3; margin-bottom: 3px; }
+        .logout-btn-top span { font-size: 0.65rem; font-weight: 900; letter-spacing: 0.5px; text-shadow: 1px 1px 1px rgba(0,0,0,0.5); }
 
         .form-content { padding: 0 25px; }
         .form-section { background: var(--bg-form-grey); padding: 24px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--border-grey); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         .input-row { display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
-        .input-group { flex: 1; min-width: 120px; }
+        .input-group { flex: 1; min-width: 120px; position: relative; } /* Updated for dropdowns */
         
         label { font-weight: 800; display: block; margin-bottom: 8px; font-size: 0.86rem; color: var(--text-muted); letter-spacing: 0.5px; } 
         .req-star { color: #DC2626; font-size: 1rem; margin-left: 2px; } 
@@ -106,11 +115,17 @@
         .toast-success { background: var(--btn-success); }
     </style>
 </head>
-<body onclick="checkClickOutside(event)" onload="checkSession()">
+<body onclick="checkClickOutside(event)" onload="checkDeviceLock()">
 
 <div id="toast-container"></div>
 
-<div id="loginOverlay" class="overlay-bg">
+<div id="deviceLockOverlay">
+    <h1>UNAUTHORIZED DEVICE</h1>
+    <p>THIS SYSTEM IS LOCKED TO REGISTERED CASINO HARDWARE.</p>
+    <button class="btn-register-device" onclick="registerDevice()">AUTHORIZE THIS DEVICE</button>
+</div>
+
+<div id="loginOverlay" class="overlay-bg" style="display:none;">
     <div class="login-box">
         <h2>LOGIN SECURE</h2>
         <input type="text" id="loginUser" placeholder="ENTER USERNAME" autocomplete="off" onkeypress="if(event.key === 'Enter') document.getElementById('loginPass').focus();">
@@ -141,11 +156,11 @@
     <div class="top-shufflers-container" id="topShufflers"></div>
     
     <button class="logout-btn-top" onclick="logoutUser()" title="LOGOUT">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-            <polyline points="16 17 21 12 16 7"></polyline>
-            <line x1="21" y1="12" x2="9" y2="12"></line>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18.36 6.64a9 9 0 1 1-12.73 0"></path>
+            <line x1="12" y1="2" x2="12" y2="12"></line>
         </svg>
+        <span>LOGOUT</span>
     </button>
 
     <div class="header"><h3>SHUFFLER LOG SYSTEM</h3></div>
@@ -157,7 +172,13 @@
                 <div class="input-group"><label>LOG TIME <span class="req-star">*</span></label><input type="time" id="time" tabindex="2"></div>
                 <div class="input-group"><label>REPORTED BY <span class="req-star">*</span></label><input type="text" id="informedBy" tabindex="3"></div>
                 <div class="input-group"><label>DEALER</label><input type="text" id="dealer" tabindex="4"></div>
-                <div class="input-group"><label>TABLE NO <span class="req-star">*</span></label><input type="text" id="tableNo" oninput="enforcePrefix('tableNo', 'FT ')" tabindex="5"></div>
+                
+                <div class="input-group">
+                    <label>TABLE NO <span class="req-star">*</span></label>
+                    <input type="text" id="tableNo" autocomplete="off" onfocus="showList('tableSelect')" onkeyup="filterList('tableNo', 'tableSelect')" onblur="setTimeout(() => document.getElementById('tableSelect').style.display='none', 150)" tabindex="5">
+                    <select id="tableSelect" class="dropdown-list" size="5" tabindex="-1"></select>
+                </div>
+                
                 <div class="input-group">
                     <label>SHUFFLER TYPE <span class="req-star">*</span></label>
                     <select id="shuffler" onchange="handleShufflerChange()" tabindex="6">
@@ -174,17 +195,25 @@
 
             <div class="input-row">
                 <div class="input-group"><label>ASSET NUMBER <span class="req-star">*</span></label><input type="text" id="assetNo" oninput="enforceAssetPrefix()" tabindex="7"></div>
+                
                 <div class="search-wrapper">
                     <label>ERROR MESSAGE <span class="req-star">*</span></label>
                     <input type="text" id="error" autocomplete="off" onfocus="showList('errorSelect')" onkeyup="filterList('error', 'errorSelect')" onblur="setTimeout(() => document.getElementById('errorSelect').style.display='none', 150)" tabindex="8">
                     <select id="errorSelect" class="dropdown-list" size="5" tabindex="-1"></select>
                 </div>
-                <div class="input-group"><label>SURVEILLANCE <span class="req-star">*</span></label><input type="text" id="surveillance" tabindex="9"></div>
+                
+                <div class="input-group">
+                    <label>SURVEILLANCE <span class="req-star">*</span></label>
+                    <input type="text" id="surveillance" autocomplete="off" onfocus="showList('survSelect')" onkeyup="filterList('surveillance', 'survSelect')" onblur="setTimeout(() => document.getElementById('survSelect').style.display='none', 150)" tabindex="9">
+                    <select id="survSelect" class="dropdown-list" size="5" tabindex="-1"></select>
+                </div>
+                
                 <div class="search-wrapper">
                     <label>TECHNICIAN <span class="req-star">*</span></label>
                     <input type="text" id="tech" autocomplete="off" onfocus="showList('techSelect')" onkeyup="filterList('tech', 'techSelect')" onblur="setTimeout(() => document.getElementById('techSelect').style.display='none', 150)" tabindex="10">
                     <select id="techSelect" class="dropdown-list" size="5" tabindex="-1"></select>
                 </div>
+                
                 <div class="input-group" style="flex:2;">
                     <label id="remarksLabel">REMARKS <span class="req-star">*</span> <span style="font-size: 0.7rem; color: #94A3B8; font-weight: 600;">(FOR SWAPS/DEPT/DAMAGE)</span></label>
                     <input type="text" id="remarks" placeholder="ENTER DETAILS HERE..." tabindex="11">
@@ -244,8 +273,95 @@
 
 <script>
     // --- PASTE YOUR EXACT APP SCRIPT URL HERE ---
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzT6KPnaDQRn-IXpgnU7TXK0iFwTNHXWIjUZ5sDFJPldBXYJrI7FcovcfG1_53GChN2/exec"; 
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxNIeeEHGEYLD0fOqZqcDH753jOkQBAafJ1hFIniT6vngXpZEARRFBObLQpbZVdkxA/exec"; 
     
+    // --- DYNAMIC SETTINGS STORAGE ---
+    let globalSettings = { techs: [], tables: [], surveillance: [], errors: {} };
+    const SPECIAL_ERRORS = ["SHUFFLER BROUGHT TO DEPARTMENT", "SHUFFLER SWAPPED WITH OTHER TABLE", "CARD DAMAGE"];
+    
+    // Fetch settings from Google Sheet
+    async function fetchDynamicSettings() {
+        const cached = localStorage.getItem("shufflerSettings");
+        if (cached) {
+            globalSettings = JSON.parse(cached);
+            applySettingsToUI();
+        }
+
+        try {
+            const res = await fetch(SCRIPT_URL + "?action=GET_SETTINGS");
+            const data = await res.json();
+            if (data.status === "success") {
+                globalSettings = data.settings;
+                localStorage.setItem("shufflerSettings", JSON.stringify(globalSettings));
+                applySettingsToUI();
+            }
+        } catch (e) {
+            console.log("Offline mode: Using cached settings.");
+        }
+    }
+
+    // Helper to build dropdown lists
+    function populateDropdown(selectId, inputId, dataArray) {
+        const sel = document.getElementById(selectId);
+        sel.innerHTML = "";
+        if(!dataArray) return;
+        
+        // Sort alphabetically, then map
+        dataArray.sort().forEach(val => {
+            if(!val) return;
+            let opt = document.createElement('option');
+            opt.value = opt.text = val;
+            opt.onmousedown = function(e) {
+                e.preventDefault();
+                let inputEl = document.getElementById(inputId);
+                inputEl.value = this.value;
+                inputEl.classList.remove('error-highlight');
+                sel.style.display = "none";
+                
+                // Specific logic for error dropdown
+                if(inputId === 'error') {
+                    const isSpecial = SPECIAL_ERRORS.includes(this.value);
+                    if(!isSpecial) document.getElementById('remarks').classList.remove('error-highlight');
+                }
+            };
+            sel.appendChild(opt);
+        });
+    }
+
+    function applySettingsToUI() {
+        populateDropdown('techSelect', 'tech', globalSettings.techs);
+        populateDropdown('tableSelect', 'tableNo', globalSettings.tables);
+        populateDropdown('survSelect', 'surveillance', globalSettings.surveillance);
+        handleShufflerChange(); // Refresh error list if shuffler is already selected
+    }
+
+    // --- PERMANENT DEVICE REGISTRATION LOCK ---
+    function checkDeviceLock() {
+        const isRegistered = localStorage.getItem("shufflerDeviceRegistered");
+        const hasOldToken = localStorage.getItem("shufflerDeviceExpiry");
+
+        if (isRegistered === "true" || hasOldToken) {
+            document.getElementById('deviceLockOverlay').style.display = 'none';
+            document.getElementById('loginOverlay').style.display = 'flex';
+            checkSession();
+        } else {
+            document.getElementById('deviceLockOverlay').style.display = 'flex';
+            document.getElementById('loginOverlay').style.display = 'none';
+        }
+    }
+
+    function registerDevice() {
+        const pin = window.prompt("ENTER MASTER DEVICE PIN TO AUTHORIZE THIS HARDWARE:");
+        if (pin === "8888") { 
+            localStorage.setItem("shufflerDeviceRegistered", "true");
+            localStorage.removeItem("shufflerDeviceExpiry");
+            alert("DEVICE AUTHORIZED SUCCESSFULLY.");
+            location.reload();
+        } else if (pin) {
+            alert("INCORRECT PIN.");
+        }
+    }
+
     // --- GLOBAL LISTENER: REMOVE RED HIGHLIGHT WHEN USER TYPES ---
     document.addEventListener('input', function(e) {
         if (e.target.classList && e.target.classList.contains('error-highlight')) {
@@ -302,12 +418,10 @@
                 currentUser = data.name;
                 document.getElementById('informedBy').value = currentUser; 
                 
-                // --- NEW: RECORD THE LOGIN IN THE SPREADSHEET ---
                 const sessionID = "SESS-" + Date.now();
                 sessionStorage.setItem("shufflerSessionId", sessionID);
                 let dt = getCurrentDateTime();
                 
-                // Quietly push the login event
                 fetch(SCRIPT_URL, {
                     method: "POST",
                     mode: "no-cors",
@@ -386,22 +500,16 @@
         initApp(); 
     }
 
-    // --- NEW: LOGOUT WITH TRACKING ---
     function logoutUser() {
         const sessionId = sessionStorage.getItem("shufflerSessionId");
-        
         if (sessionId) {
             let dt = getCurrentDateTime();
-            
-            // Quietly push the logout event to match the session ID
             fetch(SCRIPT_URL, {
                 method: "POST",
                 mode: "no-cors",
                 body: JSON.stringify({ action: "LOG_SESSION", eventType: "LOGOUT", sessionId: sessionId, username: currentUser, date: dt.date, time: dt.time })
             });
         }
-        
-        // Wait half a second for the post request to fire, then clear local storage
         setTimeout(() => {
             sessionStorage.removeItem("shufflerAuthToken");
             sessionStorage.removeItem("shufflerSessionId");
@@ -409,21 +517,22 @@
         }, 500);
     }
 
-    // --- EXISTING DASHBOARD LOGIC BELOW ---
+    window.addEventListener('beforeunload', function () {
+        const sessionId = sessionStorage.getItem("shufflerSessionId");
+        if (sessionId && currentUser) {
+            let dt = getCurrentDateTime();
+            fetch(SCRIPT_URL, {
+                method: "POST",
+                mode: "no-cors",
+                keepalive: true,
+                body: JSON.stringify({ action: "LOG_SESSION", eventType: "LOGOUT", sessionId: sessionId, username: currentUser, date: dt.date, time: dt.time })
+            });
+        }
+    });
+
+    // --- DASHBOARD LOGIC BELOW ---
     const fields = ["date", "time", "informedBy", "dealer", "tableNo", "shuffler", "assetNo", "error", "surveillance", "tech", "remarks"];
     const LIMIT_MINUTES = 10;
-    const SPECIAL_ERRORS = ["SHUFFLER BROUGHT TO DEPARTMENT", "SHUFFLER SWAPPED WITH OTHER TABLE", "CARD DAMAGE"];
-
-    const errorData = {
-        "DECKMATE": ["REMOVE FEEDER CARDS", "PERFORMING AUTO SETUP", "CARD JAM ERROR", "MISSING 1 CARD", "TOO MANY CARDS", "CARD DAMAGE", "SHUFFLER BROUGHT TO DEPARTMENT", "SHUFFLER SWAPPED WITH OTHER TABLE"],
-        "MFS": ["REMOVE CARD FROM SHELF", "OPEN CLOSE COVER", "CLOSE COVER", "WHEEL NOT LOCKED", "CARD DAMAGE", "SHUFFLER BROUGHT TO DEPARTMENT", "SHUFFLER SWAPPED WITH OTHER TABLE"],
-        "SK-2": ["CARDS BLOCKED", "DOOR SENSOR COVERED", "ESD SHOCK ERROR", "TOO FEW CARDS ERROR", "CARD DAMAGE", "SHUFFLER BROUGHT TO DEPARTMENT", "SHUFFLER SWAPPED WITH OTHER TABLE"],
-        "IDEAL": ["CARD JAM", "SENSOR ERROR", "ROLLER CLEANING REQUIRED", "CARD DAMAGE", "SHUFFLER BROUGHT TO DEPARTMENT", "SHUFFLER SWAPPED WITH OTHER TABLE"],
-        "APLUS": ["GRIPPER ERROR", "ELEVATOR JAM", "DECK EMPTY", "CARD DAMAGE", "SHUFFLER BROUGHT TO DEPARTMENT", "SHUFFLER SWAPPED WITH OTHER TABLE"],
-        "MD": ["SHUFFLE TIMEOUT", "INTERNAL ERROR", "CALIBRATION ERROR", "CARD DAMAGE", "SHUFFLER BROUGHT TO DEPARTMENT", "SHUFFLER SWAPPED WITH OTHER TABLE"]
-    };
-    
-    const techNames = ["ARJUN KUMAR", "ARPAN KHATI", "ASHVIK PADLOSKAR", "JITIN KUMAR", "JOEL FURTADO", "JULIUS MIRANDA", "MOHEET GHADI", "MORRISON ALMEIDA", "OMKAR KAULGEKAR", "ROHAN DALAL", "ROHAN PATIL", "SARVANG NAIK", "ASIF HAIDER", "SULEMAN MAKANDAR", "SUSOVON DEBHNATH", "VIVEK MURGAOKAR", "XAVIER FERNANDES", "YOGESH CHAWAN", "SARTHAK KANASKAR", "PRABHU N", "RINKU GIRI", "SAJARO SALGAOKAR"];
     
     let selectedRow = null;
     let currentViewMonth = "";
@@ -456,7 +565,7 @@
 
     async function initApp() { 
         loadFromStorage(); 
-        initTechList(); 
+        fetchDynamicSettings(); // Fetches settings from cloud
         
         let now = new Date();
         let actualHours = now.getHours();
@@ -728,9 +837,6 @@
 
             if (id === 'dealer') {
                 continue;
-            } else if (id === 'tableNo' && val === "FT ") {
-                el.classList.add('error-highlight');
-                isValid = false;
             } else if (id === 'assetNo' && val === getAssetPrefix()) {
                 el.classList.add('error-highlight');
                 isValid = false;
@@ -841,50 +947,14 @@
     }
     function enforceAssetPrefix() { enforcePrefix('assetNo', getAssetPrefix()); }
     function resetPrefixes() { 
-        document.getElementById('tableNo').value = "FT "; 
+        document.getElementById('tableNo').value = ""; // Clear for dynamic dropdown
         document.getElementById('assetNo').value = getAssetPrefix(); 
-    }
-    
-    function initTechList() {
-        const sel = document.getElementById('techSelect');
-        techNames.sort().forEach(name => { 
-            let opt = document.createElement('option'); 
-            opt.value = opt.text = name; 
-            opt.onmousedown = function(e) { 
-                e.preventDefault(); 
-                let techInput = document.getElementById('tech');
-                techInput.value = this.value; 
-                techInput.classList.remove('error-highlight'); 
-                sel.style.display = "none"; 
-            };
-            sel.appendChild(opt); 
-        });
     }
 
     function loadErrorList() {
-        const sel = document.getElementById('errorSelect'); 
         const shuff = document.getElementById('shuffler').value;
-        sel.innerHTML = ""; 
-        if(errorData[shuff]) { 
-            errorData[shuff].forEach(err => { 
-                let opt = document.createElement('option'); 
-                opt.value = opt.text = err; 
-                opt.onmousedown = function(e) {
-                    e.preventDefault(); 
-                    let errInput = document.getElementById('error');
-                    errInput.value = this.value; 
-                    errInput.classList.remove('error-highlight'); 
-                    sel.style.display = "none";
-                    
-                    const isSpecial = SPECIAL_ERRORS.includes(this.value);
-                    if(!isSpecial) {
-                        document.getElementById('remarks').classList.remove('error-highlight');
-                    }
-                };
-                sel.appendChild(opt); 
-            }); 
-            sel.style.display = "block"; 
-        }
+        let errors = globalSettings.errors[shuff] || [];
+        populateDropdown('errorSelect', 'error', errors);
     }
 
     function showList(id) { document.getElementById(id).style.display = "block"; }
@@ -1001,7 +1071,7 @@
 
     function checkClickOutside(e) {
         if (!e.target.closest('#dataTable') && !e.target.closest('.form-section')) deselect(); 
-        if (!e.target.closest('.search-wrapper')) document.querySelectorAll('.dropdown-list').forEach(el => el.style.display = "none"); 
+        if (!e.target.closest('.search-wrapper') && !e.target.closest('.input-group')) document.querySelectorAll('.dropdown-list').forEach(el => el.style.display = "none"); 
     }
 </script>
 </body>
