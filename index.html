@@ -43,7 +43,8 @@
         .container { max-width: 1400px; margin: auto; background: var(--bg-form-grey); padding-bottom: 20px; border-radius: 10px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); position: relative; overflow: hidden; border: 1px solid var(--border-grey); display: none; }
         
         .header { background-color: var(--primary-slate); width: 100%; padding: 24px 0; text-align: center; margin-bottom: 25px; border-bottom: 4px solid var(--primary-accent); }
-        .header h3 { margin: 0; margin-left: 20%; font-size: 2.86rem; letter-spacing: 3px; font-weight: 900; color: #FFFFFF; }
+        /* CHANGED HERE: color to #3B82F6 (blue) and margin-left to 25% (nudged right) */
+        .header h3 { margin: 0; margin-left: 25%; font-size: 2.86rem; letter-spacing: 3px; font-weight: 900; color: #3B82F6; }
         
         .top-issues-container, .top-shufflers-container { position: absolute; left: 25px; text-align: left; font-weight: 800; font-size: 0.99rem; color: #FFFFFF; white-space: nowrap; }
         .top-issues-container { top: 22px; }
@@ -58,7 +59,7 @@
         .form-content { padding: 0 25px; }
         .form-section { background: var(--bg-form-grey); padding: 24px; border-radius: 8px; margin-bottom: 20px; border: 1px solid var(--border-grey); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         .input-row { display: flex; gap: 16px; margin-bottom: 16px; flex-wrap: wrap; }
-        .input-group { flex: 1; min-width: 120px; position: relative; } /* Updated for dropdowns */
+        .input-group { flex: 1; min-width: 120px; position: relative; } 
         
         label { font-weight: 800; display: block; margin-bottom: 8px; font-size: 0.86rem; color: var(--text-muted); letter-spacing: 0.5px; } 
         .req-star { color: #DC2626; font-size: 1rem; margin-left: 2px; } 
@@ -168,7 +169,7 @@
     <div class="form-content">
         <div class="form-section">
             <div class="input-row">
-                <div class="input-group"><label>LOG DATE <span class="req-star">*</span></label><input type="date" id="date" tabindex="1"></div>
+                <div class="input-group"><label>LOG DATE <span class="req-star">*</span></label><input type="text" id="date" placeholder="DD-MM-YYYY" maxlength="10" oninput="formatDateInput(this)" tabindex="1"></div>
                 <div class="input-group"><label>LOG TIME <span class="req-star">*</span></label><input type="time" id="time" tabindex="2"></div>
                 <div class="input-group"><label>REPORTED BY <span class="req-star">*</span></label><input type="text" id="informedBy" tabindex="3"></div>
                 <div class="input-group"><label>DEALER</label><input type="text" id="dealer" tabindex="4"></div>
@@ -246,9 +247,9 @@
             <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap; width: 100%;">
                 <div style="display: flex; align-items: center; background: #F8FAFC; padding: 6px 12px; border-radius: 6px; border: 1px solid var(--border-grey); gap: 10px;">
                     <span style="font-weight:800; font-size: 0.8rem; color: var(--text-muted);">FROM:</span>
-                    <input type="date" id="filterDateFrom" onchange="applyFilters()" style="padding: 6px; border: 1px solid var(--border-grey); border-radius: 4px; width: auto; background: #FFFFFF;">
+                    <input type="text" id="filterDateFrom" placeholder="DD-MM-YYYY" maxlength="10" oninput="formatDateInput(this)" onkeyup="applyFilters()" style="padding: 6px; border: 1px solid var(--border-grey); border-radius: 4px; width: 110px; background: #FFFFFF; text-align: center;">
                     <span style="font-weight:800; font-size: 0.8rem; color: var(--text-muted);">TO:</span>
-                    <input type="date" id="filterDateTo" onchange="applyFilters()" style="padding: 6px; border: 1px solid var(--border-grey); border-radius: 4px; width: auto; background: #FFFFFF;">
+                    <input type="text" id="filterDateTo" placeholder="DD-MM-YYYY" maxlength="10" oninput="formatDateInput(this)" onkeyup="applyFilters()" style="padding: 6px; border: 1px solid var(--border-grey); border-radius: 4px; width: 110px; background: #FFFFFF; text-align: center;">
                     <button onclick="clearDateFilter()" style="padding: 8px 14px; font-weight: 800; cursor: pointer; border-radius: 4px; border: 1px solid var(--border-grey); background: #FFFFFF; color: var(--text-main); font-size: 0.75rem; transition: background 0.2s;">CLEAR</button>
                 </div>
                 
@@ -300,13 +301,20 @@
         }
     }
 
+    // Function to automatically insert dashes for DD-MM-YYYY
+    function formatDateInput(input) {
+        let v = input.value.replace(/\D/g, ''); // Strip all non-numbers
+        if (v.length > 2) v = v.slice(0, 2) + '-' + v.slice(2);
+        if (v.length > 5) v = v.slice(0, 5) + '-' + v.slice(5);
+        input.value = v;
+    }
+
     // Helper to build dropdown lists
     function populateDropdown(selectId, inputId, dataArray) {
         const sel = document.getElementById(selectId);
         sel.innerHTML = "";
         if(!dataArray) return;
         
-        // Sort alphabetically, then map
         dataArray.sort().forEach(val => {
             if(!val) return;
             let opt = document.createElement('option');
@@ -318,7 +326,6 @@
                 inputEl.classList.remove('error-highlight');
                 sel.style.display = "none";
                 
-                // Specific logic for error dropdown
                 if(inputId === 'error') {
                     const isSpecial = SPECIAL_ERRORS.includes(this.value);
                     if(!isSpecial) document.getElementById('remarks').classList.remove('error-highlight');
@@ -332,7 +339,7 @@
         populateDropdown('techSelect', 'tech', globalSettings.techs);
         populateDropdown('tableSelect', 'tableNo', globalSettings.tables);
         populateDropdown('survSelect', 'surveillance', globalSettings.surveillance);
-        handleShufflerChange(); // Refresh error list if shuffler is already selected
+        handleShufflerChange(); 
     }
 
     // --- PERMANENT DEVICE REGISTRATION LOCK ---
@@ -352,7 +359,7 @@
 
     function registerDevice() {
         const pin = window.prompt("ENTER MASTER DEVICE PIN TO AUTHORIZE THIS HARDWARE:");
-        if (pin === "8888") { 
+        if (pin === "86826") { 
             localStorage.setItem("shufflerDeviceRegistered", "true");
             localStorage.removeItem("shufflerDeviceExpiry");
             alert("DEVICE AUTHORIZED SUCCESSFULLY.");
@@ -362,7 +369,6 @@
         }
     }
 
-    // --- GLOBAL LISTENER: REMOVE RED HIGHLIGHT WHEN USER TYPES ---
     document.addEventListener('input', function(e) {
         if (e.target.classList && e.target.classList.contains('error-highlight')) {
             e.target.classList.remove('error-highlight');
@@ -374,7 +380,6 @@
         }
     });
 
-    // Helper: Generate current Date & Time strings
     function getCurrentDateTime() {
         let now = new Date();
         let yyyy = now.getFullYear();
@@ -382,7 +387,7 @@
         let dd = String(now.getDate()).padStart(2, '0');
         let hh = String(now.getHours()).padStart(2, '0');
         let mins = String(now.getMinutes()).padStart(2, '0');
-        return { date: `${yyyy}-${mm}-${dd}`, time: `${hh}:${mins}` };
+        return { date: `${dd}-${mm}-${yyyy}`, time: `${hh}:${mins}` };
     }
 
     // --- AUTHENTICATION LOGIC ---
@@ -565,7 +570,7 @@
 
     async function initApp() { 
         loadFromStorage(); 
-        fetchDynamicSettings(); // Fetches settings from cloud
+        fetchDynamicSettings(); 
         
         let now = new Date();
         let actualHours = now.getHours();
@@ -575,7 +580,8 @@
         let yyyy = shiftDate.getFullYear();
         let mm = String(shiftDate.getMonth() + 1).padStart(2, '0');
         let dd = String(shiftDate.getDate()).padStart(2, '0');
-        lockedDate = `${yyyy}-${mm}-${dd}`;
+        
+        lockedDate = `${dd}-${mm}-${yyyy}`;
         
         let hh = String(actualHours).padStart(2, '0');
         let mins = String(now.getMinutes()).padStart(2, '0');
@@ -656,60 +662,66 @@
         const tbody = document.querySelector('#dataTable tbody');
         tbody.innerHTML = "";
 
+        // --- BULLETPROOF CASINO SHIFT SORTING ---
         dataList.sort((a, b) => {
-            let parseStr = (d) => {
-                let ds = d || "1970-01-01";
+            function getSortValue(dateStr, timeStr) {
+                let y = 1970, m = 1, d = 1;
+                let ds = String(dateStr || "").trim().split("T")[0]; 
+                
                 if (ds.includes("-")) {
                     let p = ds.split("-");
-                    if (p[0].length === 2 && p[2].length === 4) ds = `${p[2]}-${p[1]}-${p[0]}`;
+                    if (p.length === 3) {
+                        if (p[0].length === 4) { 
+                            y = parseInt(p[0], 10); m = parseInt(p[1], 10); d = parseInt(p[2], 10);
+                        } else if (p[2].length === 4) { 
+                            d = parseInt(p[0], 10); m = parseInt(p[1], 10); y = parseInt(p[2], 10);
+                        }
+                    }
                 }
-                return ds;
-            };
+                
+                let hr = 0, min = 0;
+                let ts = String(timeStr || "00:00").trim();
+                if (ts.includes(":")) {
+                    let p = ts.split(":");
+                    hr = parseInt(p[0], 10) || 0;
+                    min = parseInt(p[1], 10) || 0;
+                }
 
-            let dA = parseStr(a.date);
-            let dB = parseStr(b.date);
-            
-            let tA = a.time || "00:00";
-            if(tA.length === 4) tA = "0" + tA;
-            let tB = b.time || "00:00";
-            if(tB.length === 4) tB = "0" + tB;
-            
-            let msA = new Date(dA + "T00:00:00").getTime();
-            let msB = new Date(dB + "T00:00:00").getTime();
-            
-            let hrA = parseInt(tA.split(":")[0]) || 0;
-            let minA = parseInt(tA.split(":")[1]) || 0;
-            let hrB = parseInt(tB.split(":")[0]) || 0;
-            let minB = parseInt(tB.split(":")[1]) || 0;
-            
-            let shiftHrA = (hrA >= 8) ? (hrA - 8) : (hrA + 16);
-            let shiftHrB = (hrB >= 8) ? (hrB - 8) : (hrB + 16);
-            
-            let valA = msA + ((shiftHrA * 60) + minA) * 60000;
-            let valB = msB + ((shiftHrB * 60) + minB) * 60000;
-            
-            if(isNaN(valA)) valA = 0;
-            if(isNaN(valB)) valB = 0;
+                // Casino shift boundary calculation
+                let shiftDate = new Date(y, m - 1, d);
+                if (hr < 8) {
+                    shiftDate.setDate(shiftDate.getDate() - 1);
+                }
+                
+                let shiftHrOffset = (hr >= 8) ? (hr - 8) : (hr + 16);
+                let shiftMs = shiftDate.getTime() + ((shiftHrOffset * 60) + min) * 60000;
+                
+                return isNaN(shiftMs) ? 0 : shiftMs;
+            }
+
+            let valA = getSortValue(a.date, a.time);
+            let valB = getSortValue(b.date, b.time);
 
             return sortDescending ? valB - valA : valA - valB;
         });
 
+        // --- RENDER ROWS ---
         dataList.forEach((item, index) => {
             const row = tbody.insertRow();
             row.setAttribute("data-id", item.id);
             
             row.insertCell(0).innerText = index + 1;
             
-            let displayDate = item.date || "";
+            let displayDate = String(item.date || "").trim().split("T")[0];
             if (displayDate.includes("-")) {
                 let parts = displayDate.split("-");
-                if (parts.length === 3 && parts[0].length === 4) {
-                    displayDate = parts[2] + "-" + parts[1] + "-" + parts[0];
+                if (parts.length >= 3 && parts[0].length === 4) {
+                    displayDate = `${parts[2]}-${parts[1]}-${parts[0]}`; 
                 }
             }
             row.insertCell(1).innerText = displayDate;
             
-            let displayTime = item.time || "";
+            let displayTime = String(item.time || "").trim();
             if(displayTime.length === 4 && displayTime.includes(":")) displayTime = "0" + displayTime;
             row.insertCell(2).innerText = displayTime;
             
@@ -743,8 +755,16 @@
         const counts = {};
         const typeCounts = { "DECKMATE": {}, "MFS": {}, "SK-2": {} };
 
-        let dFrom = dateFromStr ? new Date(dateFromStr + "T00:00:00").getTime() : null;
-        let dTo = dateToStr ? new Date(dateToStr + "T23:59:59").getTime() : null;
+        function parseDMYtoMs(dmy) {
+            if(!dmy || dmy.length !== 10) return null;
+            let p = dmy.split('-');
+            let d = parseInt(p[0], 10), m = parseInt(p[1], 10), y = parseInt(p[2], 10);
+            return new Date(y, m - 1, d, 0, 0, 0).getTime();
+        }
+
+        let dFrom = parseDMYtoMs(dateFromStr);
+        let dTo = parseDMYtoMs(dateToStr);
+        if(dTo) dTo += 86399000; 
 
         for (let row of rows) {
             let textMatch = row.innerText.toUpperCase().includes(searchInput);
@@ -752,16 +772,15 @@
 
             if (dFrom || dTo) {
                 let rowDateStr = row.cells[1].innerText.trim(); 
-                let rowTimeStr = row.cells[2].innerText.trim();
-                if (rowDateStr) {
+                if (rowDateStr && rowDateStr.length === 10) {
                     let parts = rowDateStr.split("-");
-                    if (parts.length === 3) {
-                        let standardDate = `${parts[2]}-${parts[1]}-${parts[0]}`; 
-                        let rowMs = new Date(standardDate + "T" + (rowTimeStr || "00:00") + ":00").getTime();
+                    let d = parseInt(parts[0], 10);
+                    let m = parseInt(parts[1], 10);
+                    let y = parseInt(parts[2], 10);
+                    let rowMs = new Date(y, m - 1, d).getTime();
 
-                        if (dFrom && rowMs < dFrom) dateMatch = false;
-                        if (dTo && rowMs > dTo) dateMatch = false;
-                    }
+                    if (dFrom && rowMs < dFrom) dateMatch = false;
+                    if (dTo && rowMs > dTo) dateMatch = false;
                 }
             }
 
@@ -845,6 +864,9 @@
                     el.classList.add('error-highlight');
                     isValid = false;
                 }
+            } else if (id === 'date' && val.length !== 10) {
+                el.classList.add('error-highlight');
+                isValid = false;
             } else if (val === "") {
                 el.classList.add('error-highlight');
                 isValid = false;
@@ -852,7 +874,7 @@
         }
 
         if (!isValid) {
-            showToast("PLEASE FILL ALL HIGHLIGHTED FIELDS", "error");
+            showToast("PLEASE FILL ALL HIGHLIGHTED FIELDS CORRECTLY", "error");
         }
         return isValid;
     }
@@ -867,6 +889,7 @@
         
         const rowID = "ID-" + Date.now();
         let dataObj = { id: rowID, action: "SAVE", actionUser: currentUser };
+        
         fields.forEach(id => dataObj[id] = document.getElementById(id).value.toUpperCase());
 
         syncToSheet(dataObj, 'btnSave', 'RECORD SAVED SUCCESSFULLY!');
@@ -884,6 +907,7 @@
 
         const rowID = selectedRow.getAttribute("data-id");
         let dataObj = { id: rowID, action: "UPDATE", actionUser: currentUser };
+        
         fields.forEach(id => dataObj[id] = document.getElementById(id).value.toUpperCase());
         
         syncToSheet(dataObj, 'btnUpdate', 'RECORD UPDATED SUCCESSFULLY!');
@@ -898,6 +922,7 @@
             
             const rowID = selectedRow.getAttribute("data-id");
             let dataObj = { id: rowID, action: "DELETE", actionUser: currentUser }; 
+            
             fields.forEach(id => dataObj[id] = document.getElementById(id).value.toUpperCase());
 
             let stored = JSON.parse(localStorage.getItem('shufflerLogsAssetV2') || "[]");
@@ -938,7 +963,14 @@
     function handleShufflerChange() { loadErrorList(); enforceAssetPrefix(); }
     function getAssetPrefix() {
         const s = document.getElementById('shuffler').value;
-        const p = {"DECKMATE":"SHFL-DM- ", "MFS":"SHFL-MFS- ", "SK-2":"SHFL-SK2- ", "IDEAL":"SHFL-ID- ", "APLUS":"SHFL-AP- ", "MD":"SHFL-MD- "};
+        const p = {
+            "DECKMATE": "SHFL-DM- ", 
+            "MFS": "SHFL-MFS- ", 
+            "SK-2": "SHFL-SK2- ", 
+            "IDEAL": "SHFL-ID- ", 
+            "APLUS": "SHFL-AP- ", 
+            "MD": "SHFL-MD- "
+        };
         return p[s] || "SHFL- ";
     }
     function enforcePrefix(id, prefix) { 
@@ -947,7 +979,7 @@
     }
     function enforceAssetPrefix() { enforcePrefix('assetNo', getAssetPrefix()); }
     function resetPrefixes() { 
-        document.getElementById('tableNo').value = ""; // Clear for dynamic dropdown
+        document.getElementById('tableNo').value = ""; 
         document.getElementById('assetNo').value = getAssetPrefix(); 
     }
 
@@ -1047,12 +1079,6 @@
         document.querySelectorAll('.error-highlight').forEach(el => el.classList.remove('error-highlight'));
         
         let pulledDate = row.cells[1].innerText.trim();
-        if (pulledDate.includes("-")) {
-            let parts = pulledDate.split("-");
-            if (parts.length === 3 && parts[2].length === 4) {
-                pulledDate = parts[2] + "-" + parts[1] + "-" + parts[0];
-            }
-        }
         document.getElementById('date').value = pulledDate;
         
         document.getElementById('time').value = row.cells[2].innerText.trim();
